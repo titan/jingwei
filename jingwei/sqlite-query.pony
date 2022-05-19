@@ -249,7 +249,7 @@ primitive SqliteBoolExpressionResolver
       match expr.right
       | let expr': Expression val =>
         SqliteExpressionResolver(expr', corrector, depth + 1)
-      | let subquery: Select =>
+      | let subquery: Select val =>
         SqliteQueryResolver.select(subquery, corrector)
       | None =>
         ""
@@ -516,39 +516,37 @@ primitive SqliteResultColumnResolver
 primitive SqliteQueryResolver is QueryResolver
 
   fun val select(
-    query: Select,
+    query: Select val,
     corrector: IdentifierCorrector val)
   : String val =>
-    let input: String val = SqliteDataSourceResolver(_Select.from(query), corrector)
-    let columns: String val = ", ".join(Iter[ResultColumn](_Select.result(query).values()).map[String val]({(x: ResultColumn): String val => SqliteResultColumnResolver(x, corrector)}))
-    let distinct: String val = if _Select.distinct(query) then "DISTINCT " else "" end
+    let input: String val = SqliteDataSourceResolver(query.from_clause, corrector)
+    let columns: String val = ", ".join(Iter[ResultColumn](query.result_columns.values()).map[String val]({(x: ResultColumn): String val => SqliteResultColumnResolver(x, corrector)}))
+    let distinct: String val = if query.distinct_result then "DISTINCT " else "" end
     let where_filter: String val =
-      match _Select.where_filter(query)
+      match query.where_clause
       | let expr: BoolExpression =>
         " WHERE " + SqliteBoolExpressionResolver(expr, corrector)
       | None =>
         ""
       end
     let group_by: String val =
-      match _Select.group_by(query)
-      | let cols: Array[Column] val =>
+      match query.group_by_clause
+      | (let cols: Array[Column] val, let having: (BoolExpression | None)) =>
         let cols': String val = ", ".join(Iter[Column](cols.values()).map[String val]({(x: Column): String val => corrector.correct(_Column.name(x))}))
-        let result: String iso = recover iso String(" GROUP BY ".size() + cols'.size()) end
-        (consume result) .> append(" GROUP BY ") .> append(cols')
-      | None =>
-        ""
-      end
-    let having: String val =
-      match _Select.having(query)
-      | let expr: BoolExpression =>
-        let expr_repr: String val = SqliteBoolExpressionResolver(expr, corrector)
-        let result: String iso = recover iso String(" HAVING ".size() + expr_repr.size()) end
-        (consume result) .> append(" HAVING ") .> append(expr_repr)
+        match having
+        | let expr: BoolExpression =>
+          let expr_repr: String val = SqliteBoolExpressionResolver(expr, corrector)
+          let result: String iso = recover iso String(" GROUP BY  HAVING ".size() + cols'.size() + expr_repr.size()) end
+          (consume result) .> append(" GROUP BY ") .> append(cols') .> append(" HAVING ") .> append(expr_repr)
+        | None =>
+          let result: String iso = recover iso String(" GROUP BY ".size() + cols'.size()) end
+          (consume result) .> append(" GROUP BY ") .> append(cols')
+        end
       | None =>
         ""
       end
     let order_by: String val =
-      match _Select.order_by(query)
+      match query.order_by_clause
       | (let cols: Array[Column] val, let order: Order) =>
         let cols': String val = ", ".join(Iter[Column](cols.values()).map[String val]({(x: Column): String val => corrector.correct(_Column.name(x))}))
         let order': String val = if order == Asc then "" else " DESC" end
@@ -557,18 +555,18 @@ primitive SqliteQueryResolver is QueryResolver
       | None =>
         ""
       end
-    let limit: String val = if _Select.limit(query) != 0 then " LIMIT " + _Select.limit(query).string() else "" end
-    let offset: String val = if _Select.offset(query) != 0 then " OFFSET " + _Select.offset(query).string() else "" end
-    let result: String iso = recover iso String("SELECT  FROM ".size() + columns.size() + distinct.size() + input.size() + where_filter.size() + group_by.size() + having.size() + order_by.size() + limit.size() + offset.size()) end
-    (consume result) .> append("SELECT ") .> append(distinct) .> append(columns) .> append(" FROM ") .> append(input) .> append(where_filter) .> append(group_by) .> append(having) .> append(order_by) .> append(limit) .> append(offset)
+    let limit: String val = if query.limit_clause != 0 then " LIMIT " + query.limit_clause.string() else "" end
+    let offset: String val = if query.offset_clause != 0 then " OFFSET " + query.offset_clause.string() else "" end
+    let result: String iso = recover iso String("SELECT  FROM ".size() + columns.size() + distinct.size() + input.size() + where_filter.size() + group_by.size() + order_by.size() + limit.size() + offset.size()) end
+    (consume result) .> append("SELECT ") .> append(distinct) .> append(columns) .> append(" FROM ") .> append(input) .> append(where_filter) .> append(group_by) .> append(order_by) .> append(limit) .> append(offset)
 
   fun val insert(
-    query: Insert,
+    query: Insert val,
     corrector: IdentifierCorrector val)
   : String val =>
-    let table: String val = corrector.correct(_Insert.table(query).name())
-    let columns: String val = ", ".join(Iter[Column](_Insert.columns(query).values()).map[String val]({(x: Column): String val => corrector.correct(_Column.name(x))}))
-    let values: String val = ", ".join(Iter[Array[Expression] val](_Insert.values(query).values()).map[String val]({(x: Array[Expression] val)(corrector): String val =>
+    let table: String val = corrector.correct(query.table.name())
+    let columns: String val = ", ".join(Iter[Column](query.columns.values()).map[String val]({(x: Column): String val => corrector.correct(_Column.name(x))}))
+    let values: String val = ", ".join(Iter[Array[Expression] val](query.values.values()).map[String val]({(x: Array[Expression] val)(corrector): String val =>
       let vals: String val = ", ".join(Iter[Expression](x.values()).map[String val]({(y: Expression): String val =>
         SqliteExpressionResolver(y, corrector)
       }))
@@ -579,13 +577,13 @@ primitive SqliteQueryResolver is QueryResolver
     (consume result) .> append("INSERT INTO ") .> append(table) .> append("(") .> append(columns) .> append(") VALUES ") .> append(values)
 
   fun val update(
-    query: Update,
+    query: Update val,
     corrector: IdentifierCorrector val)
   : String val =>
-    let table: String val = corrector.correct(_Update.table(query).name())
-    let assignments: String val = ", ".join(Iter[Assignment](_Update.assignments(query).values()).map[String val]({(x: Assignment): String val => SqliteAssignmentResolver(x, corrector)}))
+    let table: String val = corrector.correct(query.table.name())
+    let assignments: String val = ", ".join(Iter[Assignment](query.assignments.values()).map[String val]({(x: Assignment): String val => SqliteAssignmentResolver(x, corrector)}))
     let where_filter: String val =
-      match _Update.where_filter(query)
+      match query.where_filter_clause
       | let expr: BoolExpression =>
         " WHERE " + SqliteBoolExpressionResolver(expr, corrector)
       | None =>
@@ -595,12 +593,12 @@ primitive SqliteQueryResolver is QueryResolver
     (consume result) .> append("UPDATE ") .> append(table) .> append(" SET ") .> append(assignments) .> append(where_filter)
 
   fun val delete(
-    query: Delete,
+    query: Delete val,
     corrector: IdentifierCorrector val)
   : String val =>
-    let table: String val = corrector.correct(_Delete.table(query).name())
+    let table: String val = corrector.correct(query.table.name())
     let where_filter: String val =
-      match _Delete.where_filter(query)
+      match query.where_filter_clause
       | let expr: BoolExpression =>
         " WHERE " + SqliteBoolExpressionResolver(expr, corrector)
       | None =>

@@ -44,291 +44,117 @@ primitive Desc is _Order
 
 type Order is (Asc | Desc)
 
-type Select is
-  ( Array[ResultColumn] val // result
-  , Bool // distinct
-  , DataSource // from
-  , (BoolExpression | None) // where filter
-  , (Array[Column] val | None) // group-by
-  , (BoolExpression | None) // having
-  , ((Array[Column] val, Order) | None) // order-by
-  , USize // limit
-  , USize // offset
-  )
+class Select
+  var result_columns: Array[ResultColumn] val // result
+  var distinct_result: Bool // distinct
+  var from_clause: DataSource // from
+  var where_clause: (BoolExpression | None) // where filter
+  var group_by_clause: ((Array[Column] val, (BoolExpression | None)) | None) // group-by
+  var order_by_clause: ((Array[Column] val, Order) | None) // order-by
+  var limit_clause: I64// limit
+  var offset_clause: I64// offset
 
-primitive _Select
-  fun val result(
-    query: Select val)
-  : Array[ResultColumn] val =>
-    query._1
-
-  fun val distinct(
-    query: Select val)
-  : Bool =>
-    query._2
-
-  fun val from(
-    query: Select val)
-  : DataSource =>
-    query._3
-
-  fun val where_filter(
-    query: Select val)
-  : (BoolExpression | None) =>
-    query._4
-
-  fun val group_by(
-    query: Select val)
-  : (Array[Column] val | None) =>
-    query._5
-
-  fun val having(
-    query: Select val)
-  : (BoolExpression | None) =>
-    query._6
-
-  fun val order_by(
-    query: Select val)
-  : ((Array[Column] val, Order) | None) =>
-    query._7
-
-  fun val limit(
-    query: Select val)
-  : USize =>
-    query._8
-
-  fun val offset(
-    query: Select val)
-  : USize =>
-    query._9
-
-primitive SelectBuilder
-  fun val apply(
+  new create(
     result': Array[ResultColumn] val,
     distinct': Bool = false,
     from': DataSource = [],
     where_filter': (BoolExpression | None) = None,
-    group_by': (Array[Column] val | None) = None,
-    having': (BoolExpression | None) = None,
+    group_by': ((Array[Column] val, (BoolExpression | None)) | None) = None,
     order_by': ((Array[Column] val, Order) | None) = None,
-    limit': USize = 0,
-    offset': USize = 0)
-  : Select val =>
-    ( result'
-    , distinct'
-    , from'
-    , where_filter'
-    , group_by'
-    , having'
-    , order_by'
-    , limit'
-    , offset'
-    )
+    limit': I64 = I64(0),
+    offset': I64 = I64(0))
+  =>
+    result_columns = result'
+    distinct_result = distinct'
+    from_clause = from'
+    where_clause = where_filter'
+    group_by_clause = group_by'
+    order_by_clause = order_by'
+    limit_clause = limit'
+    offset_clause = offset'
 
-  fun val result(
-    query: Select val,
+  fun ref result(
     result': Array[ResultColumn] val)
-  : Select val =>
-    apply(
-      result',
-      query._2,
-      query._3,
-      query._4,
-      query._5,
-      query._6,
-      query._7,
-      query._8,
-      query._9
-    )
+  =>
+    result_columns = result'
 
-  fun val distinct(
-    query: Select val,
+  fun ref distinct(
     distinct': Bool)
-  : Select val =>
-    apply(
-      query._1,
-      distinct',
-      query._3,
-      query._4,
-      query._5,
-      query._6,
-      query._7,
-      query._8,
-      query._9
-    )
+  =>
+    distinct_result = distinct'
 
-  fun val from(
-    query: Select val,
-    input: DataSource)
-  : Select val =>
-    apply(
-      query._1,
-      query._2,
-      input,
-      query._4,
-      query._5,
-      query._6,
-      query._7,
-      query._8,
-      query._9
-    )
+  fun ref from(
+    from': DataSource)
+  =>
+    from_clause = from'
 
-  fun val from_table(
-    query: Select val,
+  fun ref from_table(
     table: Table val)
-  : Select val =>
-    match _Select.from(query)
+  =>
+    match from_clause
     | let x: TableOrSubquery val =>
-      apply(
-        query._1,
-        query._2,
-        [x; TableOrSubquery(table)],
-        query._4,
-        query._5,
-        query._6,
-        query._7,
-        query._8,
-        query._9
-      )
+      from_clause = [x; TableOrSubquery(table)]
     | let x: Array[TableOrSubquery val] val if x.size() == 0 =>
-      apply(
-        query._1,
-        query._2,
-        TableOrSubquery(table),
-        query._4,
-        query._5,
-        query._6,
-        query._7,
-        query._8,
-        query._9
-      )
+      from_clause = TableOrSubquery(table)
     | let x: Array[TableOrSubquery val] val =>
       let ds: Array[TableOrSubquery val] iso = recover iso Array[TableOrSubquery](x.size() + 1) end
       for x' in x.values() do
         ds.push(x')
       end
       ds.push(TableOrSubquery(table))
-      apply(
-        query._1,
-        query._2,
-        consume ds,
-        query._4,
-        query._5,
-        query._6,
-        query._7,
-        query._8,
-        query._9
-      )
+      from_clause = consume ds
     | let join': JoinClause val =>
-      let ds: Array[TableOrSubquery val] val = [TableOrSubquery(table)]
-      apply(
-        query._1,
-        query._2,
-        ds,
-        query._4,
-        query._5,
-        query._6,
-        query._7,
-        query._8,
-        query._9
-      )
+      from_clause = [TableOrSubquery(table)]
     end
 
-  fun val from_subquery(
-    query: Select val,
+  fun ref from_subquery(
     subquery: Select val)
-  : Select val =>
-    match _Select.from(query)
+  =>
+    match from_clause
     | let x: TableOrSubquery val =>
-      apply(
-        query._1,
-        query._2,
-        [x; TableOrSubquery(subquery)],
-        query._4,
-        query._5,
-        query._6,
-        query._7,
-        query._8,
-        query._9
-      )
+      from_clause = [x; TableOrSubquery(subquery)]
     | let x: Array[TableOrSubquery val] val if x.size() == 0 =>
-      apply(
-        query._1,
-        query._2,
-        TableOrSubquery(subquery),
-        query._4,
-        query._5,
-        query._6,
-        query._7,
-        query._8,
-        query._9
-      )
+      from_clause = TableOrSubquery(subquery)
     | let x: Array[TableOrSubquery val] val =>
       let ds: Array[TableOrSubquery val] iso = recover iso Array[TableOrSubquery](x.size() + 1) end
       for x' in x.values() do
         ds.push(x')
       end
       ds.push(TableOrSubquery(subquery))
-      apply(
-        query._1,
-        query._2,
-        consume ds,
-        query._4,
-        query._5,
-        query._6,
-        query._7,
-        query._8,
-        query._9
-      )
+      from_clause = consume ds
     | let join': JoinClause val =>
-      let ds: Array[TableOrSubquery val] val = [TableOrSubquery(subquery)]
-      apply(
-        query._1,
-        query._2,
-        ds,
-        query._4,
-        query._5,
-        query._6,
-        query._7,
-        query._8,
-        query._9
-      )
+      from_clause = [TableOrSubquery(subquery)]
     end
 
-  fun val join(
-    query: Select val,
+  fun ref join(
+    table_or_subquery: TableOrSubquery val,
+    contraint: (JoinContraint | None) = None)
+  =>
+    _join(Join, table_or_subquery, contraint)
+
+  fun ref left_join(
+    table_or_subquery: TableOrSubquery val,
+    contraint: (JoinContraint | None) = None)
+  =>
+    _join(LeftJoin, table_or_subquery, contraint)
+
+  fun ref left_outer_join(
+    table_or_subquery: TableOrSubquery val,
+    contraint: (JoinContraint | None) = None)
+  =>
+    _join(LeftOuterJoin, table_or_subquery, contraint)
+
+  fun ref _join(
     operator: JoinOperator,
     table_or_subquery: TableOrSubquery val,
     contraint: (JoinContraint | None) = None)
-  : Select val =>
-    match _Select.from(query)
+  =>
+    match from_clause
     | let x: TableOrSubquery val =>
-      apply(
-        query._1,
-        query._2,
-        (x, [(operator, table_or_subquery, contraint)]),
-        query._4,
-        query._5,
-        query._6,
-        query._7,
-        query._8,
-        query._9
-      )
+      from_clause = (x, [(operator, table_or_subquery, contraint)])
     | let x: Array[TableOrSubquery val] val if x.size() > 0 =>
       try
-        apply(
-          query._1,
-          query._2,
-          (x(0)?, [(operator, table_or_subquery, contraint)]),
-          query._4,
-          query._5,
-          query._6,
-          query._7,
-          query._8,
-          query._9
-        )
-      else
-        query
+        from_clause = (x(0)?, [(operator, table_or_subquery, contraint)])
       end
     | let join': JoinClause val =>
       let root = join'._1
@@ -338,298 +164,138 @@ primitive SelectBuilder
         bodies'.push(body)
       end
       bodies'.push((operator, table_or_subquery, contraint))
-
-      apply(
-        query._1,
-        query._2,
-        (root, consume bodies'),
-        query._4,
-        query._5,
-        query._6,
-        query._7,
-        query._8,
-        query._9
-      )
-    else
-      query
+      from_clause = (root, consume bodies')
     end
 
-  fun val where_filter(
-    query: Select val,
+  fun ref where_filter(
     filter: BoolExpression)
-  : Select val =>
-    apply(
-      query._1,
-      query._2,
-      query._3,
-      filter,
-      query._5,
-      query._6,
-      query._7,
-      query._8,
-      query._9
-    )
+  =>
+    where_clause = filter
 
-  fun val group_by(
-    query: Select val,
+  fun ref group_by(
     group_by': Array[Column] val)
-  : Select val =>
-    apply(
-      query._1,
-      query._2,
-      query._3,
-      query._4,
-      group_by',
-      query._6,
-      query._7,
-      query._8,
-      query._9
-    )
+  =>
+    match group_by_clause
+    | (let _: Array[Column] val, let having': (BoolExpression | None)) =>
+      group_by_clause = (group_by', having')
+    | None =>
+      group_by_clause = (group_by', None)
+    end
 
-  fun val having(
-    query: Select val,
+  fun ref having(
     having': BoolExpression)
-  : Select val =>
-    apply(
-      query._1,
-      query._2,
-      query._3,
-      query._4,
-      query._5,
-      having',
-      query._7,
-      query._8,
-      query._9
-    )
+  =>
+    match group_by_clause
+    | (let cols: Array[Column] val, let _: (BoolExpression | None)) =>
+      group_by_clause = (cols, having')
+    end
 
-  fun val order_by(
-    query: Select val,
+  fun ref order_by(
     columns: Array[Column] val,
     order: Order = Asc)
-  : Select val =>
-    apply(
-      query._1,
-      query._2,
-      query._3,
-      query._4,
-      query._5,
-      query._6,
-      (columns, order),
-      query._8,
-      query._9
-    )
+  =>
+    order_by_clause = (columns, order)
 
-  fun val limit(
-    query: Select val,
-    limit': USize)
-  : Select val =>
-    apply(
-      query._1,
-      query._2,
-      query._3,
-      query._4,
-      query._5,
-      query._6,
-      query._7,
-      limit',
-      query._9
-    )
+  fun ref limit(
+    limit': I64)
+  =>
+    limit_clause = limit'
 
-  fun val offset(
-    query: Select val,
-    offset': USize)
-  : Select val =>
-    apply(
-      query._1,
-      query._2,
-      query._3,
-      query._4,
-      query._5,
-      query._6,
-      query._7,
-      query._8,
-      offset'
-    )
+  fun ref offset(
+    offset': I64)
+  =>
+    offset_clause = offset'
 
-type Insert is
-  ( Table val // table
-  , Array[Column] val // columns
-  , Array[Array[Expression] val] val // values
-  )
+class Insert
+  var table: Table val
+  var columns: Array[Column] val
+  var values: Array[Array[Expression] val]
 
-primitive _Insert
-  fun val table(
-    query: Insert val)
-  : Table val =>
-    query._1
-
-  fun val columns(
-    query: Insert val)
-  : Array[Column] val =>
-    query._2
-
-  fun val values(
-    query: Insert val)
-  : Array[Array[Expression] val] val =>
-    query._3
-
-primitive InsertBuilder
-  fun val apply(
+  new create(
     table': Table val,
-    columns': Array[Column] val,
-    values': Array[Array[Expression] val] val)
-  : Insert val =>
-    ( table'
-    , columns'
-    , values'
-    )
+    columns': Array[Column] val = [],
+    values': Array[Array[Expression] val] val = [])
+  =>
+    table = table'
+    columns = columns'
+    values = []
+    for v in values'.values() do
+      values.push(v)
+    end
 
-  fun val table(
-    query: Insert,
-    table': Table val)
-  : Insert val =>
-    ( table'
-    , query._2
-    , query._3
-    )
-
-  fun val columns(
-    query: Insert,
+  fun ref into(
+    table': Table val,
     columns': Array[Column] val)
-  : Insert val =>
-    ( query._1
-    , columns'
-    , query._3
-    )
+  =>
+    table = table'
+    columns = columns'
 
-  fun val values(
-    query: Insert,
-    values': Array[Array[Expression] val] val)
-  : Insert val =>
-    ( query._1
-    , query._2
-    , values'
-    )
+  fun ref add_value(
+    value: Array[Expression] val)
+  =>
+    values.push(value)
 
-type Update is
-  ( Table val // table
-  , Array[Assignment] val // assignments
-  , (BoolExpression | None) // where filter
-  )
+class Update
+  var table: Table val
+  var assignments: Array[Assignment]
+  var where_filter_clause: (BoolExpression | None)
 
-primitive _Update
-  fun val table(
-    query: Update)
-  : Table val =>
-    query._1
-
-  fun val assignments(
-    query: Update)
-  : Array[Assignment] val =>
-    query._2
-
-  fun val where_filter(
-    query: Update)
-  : (BoolExpression | None) =>
-    query._3
-
-primitive UpdateBuilder
-  fun val apply(
+  new create(
     table': Table val,
-    assignments': Array[Assignment] val,
+    assignments': Array[Assignment] val = [],
     where_filter': (BoolExpression | None) = None)
-  : Update =>
-    ( table'
-    , assignments'
-    , where_filter'
-    )
+  =>
+    table = table'
+    assignments = []
+    for a in assignments'.values() do
+      assignments.push(a)
+    end
+    where_filter_clause = where_filter'
 
-  fun val table(
-    query: Update,
-    table': Table val)
-  : Update =>
-    ( table'
-    , query._2
-    , query._3
-    )
+  fun ref add_assignment(
+    assignment: Assignment)
+  =>
+    assignments.push(assignment)
 
-  fun val assignments(
-    query: Update,
-    assignments': Array[Assignment] val)
-  : Update =>
-    ( query._1
-    , assignments'
-    , query._3
-    )
-
-  fun val where_filter(
-    query: Update,
+  fun ref where_filter(
     where_filter': BoolExpression)
-  : Update =>
-    ( query._1
-    , query._2
-    , where_filter'
-    )
+  =>
+    where_filter_clause = where_filter'
 
-type Delete is
-  ( Table val // table
-  , (BoolExpression | None) // where filter
-  )
+class Delete
+  var table: Table val
+  var where_filter_clause: (BoolExpression | None)
 
-primitive _Delete
-  fun val table(
-    query: Delete)
-  : Table val =>
-    query._1
-
-  fun val where_filter(
-    query: Delete)
-  : (BoolExpression | None) =>
-    query._2
-
-primitive DeleteBuilder
-  fun val apply(
+  new create(
     table': Table val,
     where_filter': (BoolExpression | None) = None)
-  : Delete =>
-    ( table'
-    , where_filter'
-    )
+  =>
+    table = table'
+    where_filter_clause = where_filter'
 
-  fun val table(
-    query: Delete,
-    table': Table val)
-  : Delete =>
-    ( table'
-    , query._2
-    )
-
-  fun val where_filter(
-    query: Delete,
+  fun ref where_filter(
     where_filter': BoolExpression)
-  : Delete =>
-    ( query._1
-    , where_filter'
-    )
+  =>
+    where_filter_clause = where_filter'
 
 trait QueryResolver
 
   fun val select(
-    query: Select,
+    query: Select val,
     corrector: IdentifierCorrector val)
   : String val
 
   fun val insert(
-    query: Insert,
+    query: Insert val,
     corrector: IdentifierCorrector val)
   : String val
 
   fun val update(
-    query: Update,
+    query: Update val,
     corrector: IdentifierCorrector val)
   : String val
 
   fun val delete(
-    query: Delete,
+    query: Delete val,
     corrector: IdentifierCorrector val)
   : String val

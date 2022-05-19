@@ -178,11 +178,11 @@ class val NotNullExpression
 
 class val InExpression
   let left: Expression val
-  let right: (Expression val | Select | None)
+  let right: (Expression val | Select val | None)
 
   new val create(
     left': Expression val,
-    right': (Expression val | Select | None))
+    right': (Expression val | Select val | None))
   =>
     left = left'
     right = right'
@@ -276,3 +276,10 @@ type Assignment is
   ( Column
   , Expression
   )
+
+primitive AssignmentBuilder
+  fun val apply(
+    column: Column,
+    expression: Expression)
+  : Assignment =>
+    (column, expression)

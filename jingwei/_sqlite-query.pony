@@ -17,26 +17,28 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     h: TestHelper,
     corrector: IdentifierCorrector val)
   =>
+    let id = recover val Column.increments("id") end
+    let int = recover val Column.integer("int") .> nullable() end
     let cols: Array[ResultColumn] val = [
-      ColumnBuilder.increments("id")
-      ColumnBuilder.nullable(ColumnBuilder.integer("int"))
+      id
+      int
     ]
     let table_foo: Table val =
       object val is Table
         fun box name(): String => "foo"
 
-        fun box columns(): Array[Column] val => [
-          ColumnBuilder.increments("id")
-          ColumnBuilder.nullable(ColumnBuilder.integer("int"))
+        fun box columns(): Array[Column val] val => [
+          id
+          int
         ]
       end
     let table_bar: Table val =
       object val is Table
         fun box name(): String => "bar"
 
-        fun box columns(): Array[Column] val => [
-          ColumnBuilder.increments("id")
-          ColumnBuilder.nullable(ColumnBuilder.integer("int"))
+        fun box columns(): Array[Column val] val => [
+          id
+          int
         ]
       end
 
@@ -49,48 +51,61 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     let select3 = recover val Select(cols) .> from_subquery(select2) end
     h.assert_eq[String val](SqliteQueryResolver.select(select3, corrector), "SELECT id, int FROM (SELECT DISTINCT id, int FROM foo)")
 
-    let join: JoinClause val = (TableOrSubquery(table_foo), [(Join, TableOrSubquery(table_bar), (On, GreaterThanExpression(ColumnBuilder.increments("id"), I64(0))))])
-    let select4 = recover val Select(cols, false) .> from_table(table_foo) .> join(TableOrSubquery(table_bar), (On, GreaterThanExpression(ColumnBuilder.increments("id"), I64(0)))) end
+    let join: JoinClause val = (TableOrSubquery(table_foo), [(Join, TableOrSubquery(table_bar), (On, GreaterThanExpression(id, I64(0))))])
+    let select4 = recover val Select(cols, false) .> from_table(table_foo) .> join(TableOrSubquery(table_bar), (On, GreaterThanExpression(id, I64(0)))) end
     h.assert_eq[String val](SqliteQueryResolver.select(select4, corrector), "SELECT id, int FROM foo JOIN bar ON id > 0")
 
-    let select5 = recover val Select(cols) .> from_table(table_foo) .> where_filter(GreaterThanExpression(ColumnBuilder.increments("id"), I64(0))) end
+    let select5 = recover val Select(cols) .> from_table(table_foo) .> where_filter(GreaterThanExpression(id, I64(0))) end
     h.assert_eq[String val](SqliteQueryResolver.select(select5, corrector), "SELECT id, int FROM foo WHERE id > 0")
 
-    let select6 = recover val Select(cols) .> from_table(table_foo) .> where_filter(AndExpression( GreaterThanExpression(ColumnBuilder.increments("id"), I64(0)), GreaterThanExpression(ColumnBuilder.integer("int"), I64(0)))) end
+    let select6 = recover val
+      Select(cols) .>
+      from_table(table_foo) .>
+      where_filter(AndExpression(GreaterThanExpression(id, I64(0)), GreaterThanExpression(int, I64(0))))
+    end
     h.assert_eq[String val](SqliteQueryResolver.select(select6, corrector), "SELECT id, int FROM foo WHERE (id > 0) AND (int > 0)")
 
-    let select7 = recover val Select(cols) .> from_table(table_foo) .> where_filter(OrExpression( GreaterThanExpression(ColumnBuilder.increments("id"), I64(0)), GreaterThanExpression(ColumnBuilder.integer("int"), I64(0)))) end
+    let select7 = recover val
+      Select(cols) .>
+      from_table(table_foo) .>
+      where_filter(OrExpression(GreaterThanExpression(id, I64(0)), GreaterThanExpression(int, I64(0))))
+    end
     h.assert_eq[String val](SqliteQueryResolver.select(select7, corrector), "SELECT id, int FROM foo WHERE (id > 0) OR (int > 0)")
 
-    let select8 = recover val Select(cols) .> from_table(table_foo) .> where_filter(GreaterThanExpression(ColumnBuilder.increments("id"), I64(0))) .> group_by([ColumnBuilder.integer("int")]) end
+    let select8 = recover val
+      Select(cols) .>
+      from_table(table_foo) .>
+      where_filter(GreaterThanExpression(id, I64(0))) .>
+      group_by([int])
+    end
     h.assert_eq[String val](SqliteQueryResolver.select(select8, corrector), "SELECT id, int FROM foo WHERE id > 0 GROUP BY int")
 
     let select9 = recover val
       Select(cols) .>
       from_table(table_foo) .>
-      where_filter(GreaterThanExpression(ColumnBuilder.increments("id"), I64(0))) .>
-      group_by([ColumnBuilder.integer("int")]) .>
-      having(GreaterThanExpression(ApplyExpression("count", [ColumnBuilder.integer("int")]), I64(2)))
+      where_filter(GreaterThanExpression(id, I64(0))) .>
+      group_by([int]) .>
+      having(GreaterThanExpression(ApplyExpression("count", [int]), I64(2)))
     end
     h.assert_eq[String val](SqliteQueryResolver.select(select9, corrector), "SELECT id, int FROM foo WHERE id > 0 GROUP BY int HAVING count(int) > 2")
 
     let select10 = recover val
       Select(cols) .>
       from_table(table_foo) .>
-      where_filter(GreaterThanExpression(ColumnBuilder.increments("id"), I64(0))) .>
-      group_by([ColumnBuilder.integer("int")]) .>
-      having(GreaterThanExpression(ApplyExpression("count", [ColumnBuilder.integer("int")]), I64(2))) .>
-      order_by([ColumnBuilder.integer("int")])
+      where_filter(GreaterThanExpression(id, I64(0))) .>
+      group_by([int]) .>
+      having(GreaterThanExpression(ApplyExpression("count", [int]), I64(2))) .>
+      order_by([int])
     end
     h.assert_eq[String val](SqliteQueryResolver.select(select10, corrector), "SELECT id, int FROM foo WHERE id > 0 GROUP BY int HAVING count(int) > 2 ORDER BY int")
 
     let select11 = recover val
       Select(cols) .>
       from_table(table_foo) .>
-      where_filter(GreaterThanExpression(ColumnBuilder.increments("id"), I64(0))) .>
-      group_by([ColumnBuilder.integer("int")]) .>
-      having(GreaterThanExpression(ApplyExpression("count", [ColumnBuilder.integer("int")]), I64(2))) .>
-      order_by([ColumnBuilder.integer("int")]) .>
+      where_filter(GreaterThanExpression(id, I64(0))) .>
+      group_by([int]) .>
+      having(GreaterThanExpression(ApplyExpression("count", [int]), I64(2))) .>
+      order_by([int]) .>
       limit(I64(10))
     end
     h.assert_eq[String val](SqliteQueryResolver.select(select11, corrector), "SELECT id, int FROM foo WHERE id > 0 GROUP BY int HAVING count(int) > 2 ORDER BY int LIMIT 10")
@@ -98,10 +113,10 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     let select12 = recover val
       Select(cols) .>
       from_table(table_foo) .>
-      where_filter(GreaterThanExpression(ColumnBuilder.increments("id"), I64(0))) .>
-      group_by([ColumnBuilder.integer("int")]) .>
-      having(GreaterThanExpression(ApplyExpression("count", [ColumnBuilder.integer("int")]), I64(2))) .>
-      order_by([ColumnBuilder.integer("int")]) .>
+      where_filter(GreaterThanExpression(id, I64(0))) .>
+      group_by([int]) .>
+      having(GreaterThanExpression(ApplyExpression("count", [int]), I64(2))) .>
+      order_by([int]) .>
       limit(I64(10)) .>
       offset(I64(1))
     end
@@ -111,48 +126,52 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     h: TestHelper,
     corrector: IdentifierCorrector val)
   =>
+    let id = recover val Column.increments("id") end
+    let int = recover val Column.integer("int") .> nullable() end
     let cols: Array[ResultColumn] val = [
-      ColumnBuilder.increments("id")
-      ColumnBuilder.nullable(ColumnBuilder.integer("int"))
+      id
+      int
     ]
     let table_foo: Table val =
       object val is Table
         fun box name(): String => "foo"
 
-        fun box columns(): Array[Column] val => [
-          ColumnBuilder.increments("id")
-          ColumnBuilder.nullable(ColumnBuilder.integer("int"))
+        fun box columns(): Array[Column val] val => [
+          id
+          int
         ]
       end
-    let insert1 = recover val Insert(table_foo, [ColumnBuilder.integer("int")]) .> add_value([I64(1)]) end
+    let insert1 = recover val Insert(table_foo, [int]) .> add_value([I64(1)]) end
     h.assert_eq[String val](SqliteQueryResolver.insert(insert1, corrector), "INSERT INTO foo(int) VALUES (1)")
-    let insert2 = recover val Insert(table_foo, [ColumnBuilder.integer("int")]) .> add_value([Placeholder]) .> add_value([Placeholder]) end
+    let insert2 = recover val Insert(table_foo, [int]) .> add_value([Placeholder]) .> add_value([Placeholder]) end
     h.assert_eq[String val](SqliteQueryResolver.insert(insert2, corrector), "INSERT INTO foo(int) VALUES (?), (?)")
 
   fun _update(
     h: TestHelper,
     corrector: IdentifierCorrector val)
   =>
+    let id = recover val Column.increments("id") end
+    let int = recover val Column.integer("int") .> nullable() end
     let cols: Array[ResultColumn] val = [
-      ColumnBuilder.increments("id")
-      ColumnBuilder.nullable(ColumnBuilder.integer("int"))
+      id
+      int
     ]
     let table_foo: Table val =
       object val is Table
         fun box name(): String => "foo"
 
-        fun box columns(): Array[Column] val => [
-          ColumnBuilder.increments("id")
-          ColumnBuilder.nullable(ColumnBuilder.integer("int"))
+        fun box columns(): Array[Column val] val => [
+          id
+          int
         ]
       end
 
-    let update1 = recover val Update(table_foo) .> add_assignment(AssignmentBuilder(ColumnBuilder.integer("int"), I64(1))) end
+    let update1 = recover val Update(table_foo) .> add_assignment(AssignmentBuilder(int, I64(1))) end
     h.assert_eq[String val](SqliteQueryResolver.update(update1, corrector), "UPDATE foo SET int = 1")
     let update2 = recover val
       Update(table_foo) .>
-      add_assignment(AssignmentBuilder(ColumnBuilder.integer("int"), I64(1))) .>
-      where_filter(EqualsToExpression(ColumnBuilder.integer("id"), I64(0)))
+      add_assignment(AssignmentBuilder(int, I64(1))) .>
+      where_filter(EqualsToExpression(id, I64(0)))
     end
     h.assert_eq[String val](SqliteQueryResolver.update(update2, corrector), "UPDATE foo SET int = 1 WHERE id = 0")
 
@@ -160,21 +179,23 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     h: TestHelper,
     corrector: IdentifierCorrector val)
   =>
+    let id = recover val Column.increments("id") end
+    let int = recover val Column.integer("int") .> nullable() end
     let cols: Array[ResultColumn] val = [
-      ColumnBuilder.increments("id")
-      ColumnBuilder.nullable(ColumnBuilder.integer("int"))
+      id
+      int
     ]
     let table_foo: Table val =
       object val is Table
         fun box name(): String => "foo"
 
-        fun box columns(): Array[Column] val => [
-          ColumnBuilder.increments("id")
-          ColumnBuilder.nullable(ColumnBuilder.integer("int"))
+        fun box columns(): Array[Column val] val => [
+          id
+          int
         ]
       end
 
     let delete1 = recover val Delete(table_foo) end
     h.assert_eq[String val](SqliteQueryResolver.delete(delete1, corrector), "DELETE FROM foo")
-    let delete2 = recover val Delete(table_foo) .> where_filter(EqualsToExpression(ColumnBuilder.integer("id"), I64(0))) end
+    let delete2 = recover val Delete(table_foo) .> where_filter(EqualsToExpression(id, I64(0))) end
     h.assert_eq[String val](SqliteQueryResolver.delete(delete2, corrector), "DELETE FROM foo WHERE id = 0")

@@ -15,7 +15,7 @@ type JoinOperator is (Join | LeftJoin | LeftOuterJoin)
 primitive On
 primitive Using
 
-type JoinContraint is ((On, BoolExpression) | (Using, Array[Column] val))
+type JoinContraint is ((On, BoolExpression) | (Using, Array[Column val] val))
 
 type JoinClause is
   ( TableOrSubquery val
@@ -26,7 +26,7 @@ type DataSource is (TableOrSubquery val | Array[TableOrSubquery val] val | JoinC
 
 type AggregateColumn is Expression
 
-type ResultColumn is (Column | AggregateColumn)
+type ResultColumn is (Column val | AggregateColumn)
 
 interface val _Order is Equatable[_Order]
 
@@ -49,8 +49,8 @@ class Select
   var distinct_result: Bool // distinct
   var from_clause: DataSource // from
   var where_clause: (BoolExpression | None) // where filter
-  var group_by_clause: ((Array[Column] val, (BoolExpression | None)) | None) // group-by
-  var order_by_clause: ((Array[Column] val, Order) | None) // order-by
+  var group_by_clause: ((Array[Column val] val, (BoolExpression | None)) | None) // group-by
+  var order_by_clause: ((Array[Column val] val, Order) | None) // order-by
   var limit_clause: I64// limit
   var offset_clause: I64// offset
 
@@ -59,8 +59,8 @@ class Select
     distinct': Bool = false,
     from': DataSource = [],
     where_filter': (BoolExpression | None) = None,
-    group_by': ((Array[Column] val, (BoolExpression | None)) | None) = None,
-    order_by': ((Array[Column] val, Order) | None) = None,
+    group_by': ((Array[Column val] val, (BoolExpression | None)) | None) = None,
+    order_by': ((Array[Column val] val, Order) | None) = None,
     limit': I64 = I64(0),
     offset': I64 = I64(0))
   =>
@@ -173,10 +173,10 @@ class Select
     where_clause = filter
 
   fun ref group_by(
-    group_by': Array[Column] val)
+    group_by': Array[Column val] val)
   =>
     match group_by_clause
-    | (let _: Array[Column] val, let having': (BoolExpression | None)) =>
+    | (let _: Array[Column val] val, let having': (BoolExpression | None)) =>
       group_by_clause = (group_by', having')
     | None =>
       group_by_clause = (group_by', None)
@@ -186,12 +186,12 @@ class Select
     having': BoolExpression)
   =>
     match group_by_clause
-    | (let cols: Array[Column] val, let _: (BoolExpression | None)) =>
+    | (let cols: Array[Column val] val, let _: (BoolExpression | None)) =>
       group_by_clause = (cols, having')
     end
 
   fun ref order_by(
-    columns: Array[Column] val,
+    columns: Array[Column val] val,
     order: Order = Asc)
   =>
     order_by_clause = (columns, order)
@@ -208,12 +208,12 @@ class Select
 
 class Insert
   var table: Table val
-  var columns: Array[Column] val
+  var columns: Array[Column val] val
   var values: Array[Array[Expression] val]
 
   new create(
     table': Table val,
-    columns': Array[Column] val = [],
+    columns': Array[Column val] val = [],
     values': Array[Array[Expression] val] val = [])
   =>
     table = table'
@@ -225,7 +225,7 @@ class Insert
 
   fun ref into(
     table': Table val,
-    columns': Array[Column] val)
+    columns': Array[Column val] val)
   =>
     table = table'
     columns = columns'

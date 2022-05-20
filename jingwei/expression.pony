@@ -260,9 +260,9 @@ type Expression is
   | F64
   | String val
   | Placeholder
-  | Column
+  | Column val
   | Table val
-  | (Table val, Column)
+  | (Table val, Column val)
   | BoolExpression
   | AddExpression val
   | SubExpression val
@@ -273,13 +273,13 @@ type Expression is
   )
 
 type Assignment is
-  ( Column
+  ( Column val
   , Expression
   )
 
 primitive AssignmentBuilder
   fun val apply(
-    column: Column,
+    column: Column val,
     expression: Expression)
   : Assignment =>
     (column, expression)

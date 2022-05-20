@@ -322,13 +322,13 @@ primitive SqliteExpressionResolver
       (consume result) .> append("'") .> append(x) .> append("'")
     | let x: Placeholder =>
       "?"
-    | let x: Column =>
-      _Column.name(x, corrector~correct())
+    | let x: Column val =>
+      corrector.correct(x.name)
     | let x: Table val =>
       corrector.correct(x.name())
-    | (let tab: Table val, let col: Column) =>
+    | (let tab: Table val, let col: Column val) =>
       let tabname: String val = corrector.correct(tab.name())
-      let colname: String val = _Column.name(col, corrector~correct())
+      let colname: String val = corrector.correct(col.name)
       let x: String iso = recover iso String(tabname.size() + colname.size() + 1) end
       (consume x) .> append(tabname) .> append(".") .> append(colname)
     | let x: BoolExpression =>
@@ -430,10 +430,10 @@ primitive SqliteAssignmentResolver
     assignment: Assignment,
     corrector: IdentifierCorrector val)
   : String val =>
-    let col: Column = assignment._1
+    let col: Column val = assignment._1
     let expr: Expression = assignment._2
     let expr_repr: String val = SqliteExpressionResolver(expr, corrector)
-    let colname = _Column.name(col, corrector~correct())
+    let colname = corrector.correct(col.name)
     let result: String iso = recover iso String(colname.size() + expr_repr.size() + " = ".size()) end
     (consume result) .> append(colname) .> append(" = ") .> append(expr_repr)
 
@@ -472,9 +472,9 @@ primitive SqliteJoinClauseResolver
           let expr': String val = SqliteBoolExpressionResolver(expr, corrector)
           let result: String iso = recover iso String(operator.size() + table_or_subquery'.size() + expr'.size() + 5) end
           (consume result) .> append(operator) .> append(" ") .> append(table_or_subquery') .> append(" ON ") .> append(expr')
-        | (Using, let cols: Array[Column] val) =>
-          let cols': String val = ", ".join(Iter[Column](cols.values()).map[String val]({(x: Column): String val =>
-            corrector.correct(_Column.name(x))
+        | (Using, let cols: Array[Column val] val) =>
+          let cols': String val = ", ".join(Iter[Column val](cols.values()).map[String val]({(x: Column val): String val =>
+            corrector.correct(x.name)
           }))
           let result: String iso = recover iso String(operator.size() + table_or_subquery'.size() + cols'.size() + 10) end
           (consume result) .> append(operator) .> append(" ") .> append(table_or_subquery') .> append(" USING (") .>  append(cols') .> append(")")
@@ -507,8 +507,8 @@ primitive SqliteResultColumnResolver
     corrector: IdentifierCorrector val)
   : String val =>
     match col
-    | let col': Column =>
-      corrector.correct(_Column.name(col'))
+    | let col': Column val =>
+      corrector.correct(col'.name)
     | let acol: AggregateColumn =>
       SqliteExpressionResolver(acol, corrector)
     end
@@ -531,8 +531,8 @@ primitive SqliteQueryResolver is QueryResolver
       end
     let group_by: String val =
       match query.group_by_clause
-      | (let cols: Array[Column] val, let having: (BoolExpression | None)) =>
-        let cols': String val = ", ".join(Iter[Column](cols.values()).map[String val]({(x: Column): String val => corrector.correct(_Column.name(x))}))
+      | (let cols: Array[Column val] val, let having: (BoolExpression | None)) =>
+        let cols': String val = ", ".join(Iter[Column val](cols.values()).map[String val]({(x: Column val): String val => corrector.correct(x.name)}))
         match having
         | let expr: BoolExpression =>
           let expr_repr: String val = SqliteBoolExpressionResolver(expr, corrector)
@@ -547,8 +547,8 @@ primitive SqliteQueryResolver is QueryResolver
       end
     let order_by: String val =
       match query.order_by_clause
-      | (let cols: Array[Column] val, let order: Order) =>
-        let cols': String val = ", ".join(Iter[Column](cols.values()).map[String val]({(x: Column): String val => corrector.correct(_Column.name(x))}))
+      | (let cols: Array[Column val] val, let order: Order) =>
+        let cols': String val = ", ".join(Iter[Column val](cols.values()).map[String val]({(x: Column val): String val => corrector.correct(x.name)}))
         let order': String val = if order == Asc then "" else " DESC" end
         let result: String iso = recover iso String(" ORDER BY ".size() + cols'.size() + order'.size()) end
         (consume result) .> append(" ORDER BY ") .> append(cols') .> append(order')
@@ -565,7 +565,7 @@ primitive SqliteQueryResolver is QueryResolver
     corrector: IdentifierCorrector val)
   : String val =>
     let table: String val = corrector.correct(query.table.name())
-    let columns: String val = ", ".join(Iter[Column](query.columns.values()).map[String val]({(x: Column): String val => corrector.correct(_Column.name(x))}))
+    let columns: String val = ", ".join(Iter[Column val](query.columns.values()).map[String val]({(x: Column val): String val => corrector.correct(x.name)}))
     let values: String val = ", ".join(Iter[Array[Expression] val](query.values.values()).map[String val]({(x: Array[Expression] val)(corrector): String val =>
       let vals: String val = ", ".join(Iter[Expression](x.values()).map[String val]({(y: Expression): String val =>
         SqliteExpressionResolver(y, corrector)

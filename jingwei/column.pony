@@ -355,865 +355,404 @@ primitive _Default
 primitive _Unique
   fun apply(): U8 => 0x10
 
-type Column is
-  ( String val // name
-  , DataType // type
-  , U8 // bit mask: index / nullable | unsigned | default | unique
-  , Bool // default bool value
-  , I64 // default int value
-  , F64 // default float value
-  , (String val | None) // default string value
-  , (JsonDoc val | None)// default json value
-  , ForeignOnDelete
-  , (Map[String val, (I64 | String val | Array[String val] val)] val | None) // meta information
-  )
+class Column
+  var name: String val
+  var datatype: DataType
+  var mask: U8 = U8(0)
+  var default_boolean_value: Bool = false
+  var default_integer_value: I64 = I64(0)
+  var default_float_value: F64 = F64(0)
+  var default_string_value: (String val | None) = None
+  var default_json_value: (JsonDoc val | None) = None
+  var foreign_on_delete: ForeignOnDelete = NoAction
+  var meta: (Map[String val, (I64 | String val | Array[String val] val)] val | None) = None
 
-primitive _Column
-  fun name(
-    col: Column,
-    keep_safe: {(String val): String val} box = _DefaultSafeIdentifier~keep_safe())
-  : String val =>
-    """
-    Get column name
-    """
-    keep_safe(col._1)
-
-  fun datatype(
-    col: Column)
-  : DataType =>
-    """
-    Get column type
-    """
-    col._2
-
-  fun mask(
-    col: Column)
-  : U8 =>
-    """
-    Get mask
-    """
-    col._3
-
-  fun default_boolean_value(
-    col: Column)
-  : Bool =>
-    """
-    Get default boolean value
-    """
-    col._4
-
-  fun default_integer_value(
-    col: Column)
-  : I64 =>
-    """
-    Get default integer value
-    """
-    col._5
-
-  fun default_float_value(
-    col: Column)
-  : F64 =>
-    """
-    Get default float value
-    """
-    col._6
-
-  fun default_string_value(
-    col: Column)
-  : (String val | None) =>
-    """
-    Get default string value
-    """
-    col._7
-
-  fun default_json_value(
-    col: Column)
-  : (JsonDoc val | None) =>
-    """
-    Get default json value
-    """
-    col._8
-
-  fun foreign_on_delete(
-    col: Column)
-  : ForeignOnDelete =>
-    """
-    Get foreign on delete
-    """
-    col._9
-
-  fun meta(
-    col: Column)
-  : (Map[String val, (I64 | String val | Array[String val] val)] val | None) =>
-    """
-    Get meta information
-    """
-    col._10
-
-primitive ColumnBuilder
-  fun apply(
+  new create(
     name': String val,
-    datatype': DataType,
-    mask': U8,
-    default_boolean': Bool,
-    default_integer': I64,
-    default_float': F64,
-    default_string': (String val | None),
-    default_json': (JsonDoc val | None),
-    foreign_on_delete': ForeignOnDelete,
-    meta': (Map[String val, (I64 | String val | Array[String val] val)] val | None))
-  : Column =>
-    ( name'
-    , datatype'
-    , mask'
-    , default_boolean'
-    , default_integer'
-    , default_float'
-    , default_string'
-    , default_json'
-    , foreign_on_delete'
-    , meta'
-    )
+    datatype': DataType)
+  =>
+    name = name'
+    datatype = datatype'
 
-  fun index(
-    col: Column)
-  : Column =>
+  fun ref index()
+  =>
     """
     Mark column as an index
     """
-    apply(
-      col._1,
-      col._2,
-      col._3 or _Index(),
-      col._4,
-      col._5,
-      col._6,
-      col._7,
-      col._8,
-      col._9,
-      col._10
-    )
+    mask = mask or _Index()
 
-  fun nullable(
-    col: Column)
-  : Column =>
+  fun ref nullable()
+  =>
     """
     Mark column as nullable
     """
-    apply(
-      col._1,
-      col._2,
-      col._3 or _Nullable(),
-      col._4,
-      col._5,
-      col._6,
-      col._7,
-      col._8,
-      col._9,
-      col._10
-    )
+    mask = mask or _Nullable()
 
-  fun unique(
-    col: Column)
-  : Column =>
+  fun ref unique()
+  =>
     """
     Mark column as unique
     """
-    apply(
-      col._1,
-      col._2,
-      col._3 or _Unique(),
-      col._4,
-      col._5,
-      col._6,
-      col._7,
-      col._8,
-      col._9,
-      col._10
-    )
+    mask = mask or _Unique()
 
-  fun unsigned(
-    col: Column)
-  : Column =>
+  fun ref unsigned()
+  =>
     """
     Mark column as unsigned
     """
-    apply(
-      col._1,
-      col._2,
-      col._3 or _Unsigned(),
-      col._4,
-      col._5,
-      col._6,
-      col._7,
-      col._8,
-      col._9,
-      col._10
-    )
+    mask = mask or _Unsigned()
 
   /////////
   // int //
   /////////
-  fun increments(
+  new increments(
     name': String val)
-  : Column =>
-    apply(
-      name',
-      DataTypeIncrements,
-      0,
-      false,
-      I64(0),
-      F64(0.0),
-      None,
-      None,
-      NoAction,
-      None
-    )
+  =>
+    name = name'
+    datatype = DataTypeIncrements
 
-  fun integer(
+  new integer(
     name': String val,
     default: (I64 | None) = None)
-  : Column =>
+  =>
+    name = name'
+    datatype = DataTypeInteger
     match default
     | let default': I64 =>
-      apply(
-        name',
-        DataTypeInteger,
-        _Default(),
-        false,
-        default',
-        F64(0.0),
-        None,
-        None,
-        NoAction,
-        None
-      )
-    else
-      apply(
-        name',
-        DataTypeInteger,
-        0,
-        false,
-        I64(0),
-        F64(0.0),
-        None,
-        None,
-        NoAction,
-        None
-      )
+      mask = _Default()
+      default_integer_value = default'
     end
 
-  fun small_integer(
+  new small_integer(
     name': String val,
     default: (I64 | None) = None)
-  : Column =>
+  =>
+    name = name'
+    datatype = DataTypeSmallInteger
     match default
     | let default': I64 =>
-      apply(
-        name',
-        DataTypeSmallInteger,
-        _Default(),
-        false,
-        default',
-        F64(0.0),
-        None,
-        None,
-        NoAction,
-        None
-      )
-    else
-      apply(
-        name',
-        DataTypeSmallInteger,
-        0,
-        false,
-        I64(0),
-        F64(0.0),
-        None,
-        None,
-        NoAction,
-        None
-      )
+      mask = _Default()
+      default_integer_value = default'
     end
 
-  fun medium_integer(
+  new medium_integer(
     name': String val,
     default: (I64 | None) = None)
-  : Column =>
+  =>
+    name = name'
+    datatype = DataTypeMediumInteger
     match default
     | let default': I64 =>
-      apply(
-        name',
-        DataTypeMediumInteger,
-        _Default(),
-        false,
-        default',
-        F64(0.0),
-        None,
-        None,
-        NoAction,
-        None
-      )
-    else
-      apply(
-        name',
-        DataTypeMediumInteger,
-        0,
-        false,
-        I64(0),
-        F64(0.0),
-        None,
-        None,
-        NoAction,
-        None
-      )
+      mask = _Default()
+      default_integer_value = default'
     end
 
-  fun big_integer(
+  new big_integer(
     name': String val,
     default: (I64 | None) = None)
-  : Column =>
+  =>
+    name = name'
+    datatype = DataTypeBigInteger
     match default
     | let default': I64 =>
-      apply(
-        name',
-        DataTypeBigInteger,
-        _Default(),
-        false,
-        default',
-        F64(0.0),
-        None,
-        None,
-        NoAction,
-        None
-      )
-    else
-      apply(
-        name',
-        DataTypeBigInteger,
-        0,
-        false,
-        I64(0),
-        F64(0.0),
-        None,
-        None,
-        NoAction,
-        None
-      )
+      mask = _Default()
+      default_integer_value = default'
     end
 
   ///////////
   // float //
   ///////////
-  fun decimal(
+  new decimal(
     name': String val,
     maximum: USize,
     digit: USize,
     default: (F64 | None) = None)
-  : Column =>
+  =>
     let meta': Map[String val, (I64 | String val | Array[String val] val)] trn = recover trn Map[String val, (I64 | String val | Array[String val] val)] end
     meta'("maximum") = maximum.i64()
     meta'("digit") = digit.i64()
+    meta = consume meta'
+    name = name'
+    datatype = DataTypeDecimal
     match default
     | let default': F64 =>
-      apply(
-        name',
-        DataTypeDecimal,
-        _Default(),
-        false,
-        I64(0),
-        default',
-        None,
-        None,
-        NoAction,
-        consume meta'
-      )
-    else
-      apply(
-        name',
-        DataTypeDecimal,
-        0,
-        false,
-        I64(0),
-        F64(0.0),
-        None,
-        None,
-        NoAction,
-        consume meta'
-      )
+      mask = _Default()
+      default_float_value = default'
     end
 
-  fun double(
+  new double(
     name': String val,
     maximum: USize,
     digit: USize,
     default: (F64 | None) = None)
-  : Column =>
+  =>
     let meta': Map[String val, (I64 | String val | Array[String val] val)] trn = recover trn Map[String val, (I64 | String val | Array[String val] val)] end
     meta'("maximum") = maximum.i64()
     meta'("digit") = digit.i64()
+    meta = consume meta'
+    name = name'
+    datatype = DataTypeDouble
     match default
     | let default': F64 =>
-      apply(
-        name',
-        DataTypeDouble,
-        _Default(),
-        false,
-        I64(0),
-        default',
-        None,
-        None,
-        NoAction,
-        consume meta'
-      )
-    else
-      apply(
-        name',
-        DataTypeDouble,
-        0,
-        false,
-        I64(0),
-        F64(0.0),
-        None,
-        None,
-        NoAction,
-        consume meta'
-      )
+      mask = _Default()
+      default_float_value = default'
     end
 
-  fun float(
+  new float(
     name': String val,
     default: (F64 | None) = None)
-  : Column =>
+  =>
+    name = name'
+    datatype = DataTypeFloat
     match default
     | let default': F64 =>
-      apply(
-        name',
-        DataTypeFloat,
-        _Default(),
-        false,
-        I64(0),
-        default',
-        None,
-        None,
-        NoAction,
-        None
-      )
-    else
-      apply(
-        name',
-        DataTypeFloat,
-        0,
-        false,
-        I64(0),
-        F64(0.0),
-        None,
-        None,
-        NoAction,
-        None
-      )
+      mask = _Default()
+      default_float_value = default'
     end
 
   //////////
   // char //
   //////////
-  fun char(
+  new char(
     name': String val,
     max_length: USize,
     default: (String val | None) = None)
-  : Column =>
+  =>
     let meta': Map[String val, (I64 | String val | Array[String val] val)] trn = recover trn Map[String val, (I64 | String val | Array[String val] val)] end
     meta'("max-length") = max_length.i64()
-    apply(
-      name',
-      DataTypeChar,
-      if default is None then 0 else _Default() end,
-      false,
-      I64(0),
-      F64(0.0),
-      default,
-      None,
-      NoAction,
-      consume meta'
-    )
+    meta = consume meta'
+    name = name'
+    datatype = DataTypeChar
+    if not (default is None) then
+      mask = _Default()
+      default_string_value = default
+    end
 
-  fun string(
+  new string(
     name': String val,
     max_length: USize = 255,
     default: (String val | None) = None)
-  : Column =>
+  =>
     let meta': Map[String val, (I64 | String val | Array[String val] val)] trn = recover trn Map[String val, (I64 | String val | Array[String val] val)] end
     meta'("max-length") = max_length.i64()
-    apply(
-      name',
-      DataTypeString,
-      if default is None then 0 else _Default() end,
-      false,
-      I64(0),
-      F64(0.0),
-      default,
-      None,
-      NoAction,
-      consume meta'
-    )
+    meta = consume meta'
+    name = name'
+    datatype = DataTypeString
+    if not (default is None) then
+      mask = _Default()
+      default_string_value = default
+    end
 
-  fun uuid(
+  new uuid(
     name': String val)
-  : Column =>
+  =>
     let meta': Map[String val, (I64 | String val | Array[String val] val)] trn = recover trn Map[String val, (I64 | String val | Array[String val] val)] end
     meta'("max-length") = I64(255)
-    apply(
-      name',
-      DataTypeString,
-      _Unique() or _Index(),
-      false,
-      I64(0),
-      F64(0.0),
-      None,
-      None,
-      NoAction,
-      consume meta'
-    )
+    meta = consume meta'
+    name = name'
+    datatype = DataTypeString
+    mask = _Unique() or _Index()
 
-  fun text(
+  new text(
     name': String val,
     default: (String val | None) = None)
-  : Column =>
-    apply(
-      name',
-      DataTypeText,
-      if default is None then 0 else _Default() end,
-      false,
-      I64(0),
-      F64(0.0),
-      default,
-      None,
-      NoAction,
-      None
-    )
+  =>
+    name = name'
+    datatype = DataTypeText
+    if not (default is None) then
+      mask = _Default()
+      default_string_value = default
+    end
 
-  fun medium_text(
+  new medium_text(
     name': String val,
     default: (String val | None) = None)
-  : Column =>
-    apply(
-      name',
-      DataTypeMediumText,
-      if default is None then 0 else _Default() end,
-      false,
-      I64(0),
-      F64(0.0),
-      default,
-      None,
-      NoAction,
-      None
-    )
+  =>
+    name = name'
+    datatype = DataTypeMediumText
+    if not (default is None) then
+      mask = _Default()
+      default_string_value = default
+    end
 
-  fun long_text(
+  new long_text(
     name': String val,
     default: (String val | None) = None)
-  : Column =>
-    apply(
-      name',
-      DataTypeLongText,
-      if default is None then 0 else _Default() end,
-      false,
-      I64(0),
-      F64(0.0),
-      default,
-      None,
-      NoAction,
-      None
-    )
+  =>
+    name = name'
+    datatype = DataTypeLongText
+    if not (default is None) then
+      mask = _Default()
+      default_string_value = default
+    end
 
   //////////
   // date //
   //////////
-  fun date(
+  new date(
     name': String val,
     default: Bool = false)
-  : Column =>
-    apply(
-      name',
-      DataTypeDate,
-      if default then _Default() else 0 end,
-      false,
-      I64(0),
-      F64(0.0),
-      None,
-      None,
-      NoAction,
-      None
-    )
+  =>
+    name = name'
+    datatype = DataTypeDate
+    if default then
+      mask = _Default()
+    end
 
-  fun datetime(
+  new datetime(
     name': String val,
     default: Bool = false)
-  : Column =>
-    apply(
-      name',
-      DataTypeDateTime,
-      if default then _Default() else 0 end,
-      false,
-      I64(0),
-      F64(0.0),
-      None,
-      None,
-      NoAction,
-      None
-    )
+  =>
+    name = name'
+    datatype = DataTypeDateTime
+    if default then
+      mask = _Default()
+    end
 
-  fun time(
+  new time(
     name': String val,
     default: Bool = false)
-  : Column =>
-    apply(
-      name',
-      DataTypeTime,
-      if default then _Default() else 0 end,
-      false,
-      I64(0),
-      F64(0.0),
-      None,
-      None,
-      NoAction,
-      None
-    )
+  =>
+    name = name'
+    datatype = DataTypeTime
+    if default then
+      mask = _Default()
+    end
 
-  fun timestamp(
+  new timestamp(
     name': String val,
     default: Bool = false)
-  : Column =>
-    apply(
-      name',
-      DataTypeTimestamp,
-      if default then _Default() else 0 end,
-      false,
-      I64(0),
-      F64(0.0),
-      None,
-      None,
-      NoAction,
-      None
-    )
+  =>
+    name = name'
+    datatype = DataTypeTimestamp
+    if default then
+      mask = _Default()
+    end
 
-  fun timestamps()
-  : Column =>
-    apply(
-      "",
-      DataTypeTimestamps,
-      0,
-      false,
-      I64(0),
-      F64(0.0),
-      None,
-      None,
-      NoAction,
-      None
-    )
+  new timestamps()
+  =>
+    name = ""
+    datatype = DataTypeTimestamps
 
-  fun soft_delete()
-  : Column =>
-    apply(
-      "",
-      DataTypeSoftDelete,
-      0,
-      false,
-      I64(0),
-      F64(0.0),
-      None,
-      None,
-      NoAction,
-      None
-    )
+  new soft_delete()
+  =>
+    name = ""
+    datatype = DataTypeSoftDelete
 
   ////////////
   // others //
   ////////////
-  fun binary(
+  new binary(
     name': String val,
     default: (String val | None) = None)
-  : Column =>
-    apply(
-      name',
-      DataTypeBinary,
-      if default is None then 0 else _Default() end,
-      false,
-      I64(0),
-      F64(0.0),
-      default,
-      None,
-      NoAction,
-      None
-    )
-
-  fun boolean(
-    name': String val,
-    default: (Bool | None) = None)
-  : Column =>
-    match default
-    | let default': Bool =>
-      apply(
-        name',
-        DataTypeBoolean,
-        _Default(),
-        default',
-        I64(0),
-        F64(0.0),
-        None,
-        None,
-        NoAction,
-        None
-      )
-    else
-      apply(
-        name',
-        DataTypeBoolean,
-        0,
-        false,
-        I64(0),
-        F64(0.0),
-        None,
-        None,
-        NoAction,
-        None
-      )
+  =>
+    name = name'
+    datatype = DataTypeBinary
+    if not (default is None) then
+      mask = _Default()
+      default_string_value = default
     end
 
-  fun enum(
+  new boolean(
+    name': String val,
+    default: (Bool | None) = None)
+  =>
+    name = name'
+    datatype = DataTypeBoolean
+    match default
+    | let default': Bool =>
+      mask = _Default()
+      default_boolean_value = default'
+    end
+
+  new enum(
     name': String val,
     options: Set[String val] val,
     default: (String val | None) = None)
-  : Column =>
+  =>
     let meta': Map[String val, (I64 | String val | Array[String val] val)] trn = recover trn Map[String val, (I64 | String val | Array[String val] val)] end
     let array: Array[String val] iso = recover iso Array[String val](options.size()) end
     for opt in options.values() do
       array.push(opt)
     end
     meta'("options") = consume array
-    apply(
-      name',
-      DataTypeEnum,
-      if default is None then 0 else _Default() end,
-      false,
-      I64(0),
-      F64(0.0),
-      default,
-      None,
-      NoAction,
-      consume meta'
-    )
+    meta = consume meta'
+    name = name'
+    datatype = DataTypeEnum
+    if not (default is None) then
+      mask = _Default()
+      default_string_value = default
+    end
 
-  fun json(
+  new json(
     name': String val,
     default: (JsonDoc val | None) = None)
-  : Column =>
-    apply(
-      name',
-      DataTypeJson,
-      if default is None then 0 else _Default() end,
-      false,
-      I64(0),
-      F64(0.0),
-      None,
-      default,
-      NoAction,
-      None
-    )
+  =>
+    name = name'
+    datatype = DataTypeJson
+    if not (default is None) then
+      mask = _Default()
+      default_json_value = default
+    end
 
   /////////////
   // foreign //
   /////////////
-  fun foreign(
+  new foreign(
     name': String val,
     default: (I64 | None) = None)
-  : Column =>
+  =>
+    name = name'
+    datatype = DataTypeForeign
     match default
     | let default': I64 =>
-      apply(
-        name',
-        DataTypeForeign,
-        _Index() or _Default(),
-        false,
-        default',
-        F64(0.0),
-        None,
-        None,
-        NoAction,
-        None
-      )
+      mask = _Index() or _Default()
+      default_integer_value = default'
     else
-      apply(
-        name',
-        DataTypeForeign,
-        _Index(),
-        false,
-        I64(0),
-        F64(0.0),
-        None,
-        None,
-        NoAction,
-        None
-      )
+      mask = _Index()
     end
 
-  fun string_foreign(
+  new string_foreign(
     name': String val,
     length: USize = 255,
     default: (String val | None))
-  : Column =>
+  =>
     let meta': Map[String val, (I64 | String val | Array[String val] val)] trn = recover trn Map[String val, (I64 | String val | Array[String val] val)] end
     meta'("max-length") = length.i64()
-    apply(
-      name',
-      DataTypeForeign,
-      if default is None then _Index() else _Index() or _Default() end,
-      false,
-      I64(0),
-      F64(0.0),
-      default,
-      None,
-      NoAction,
-      consume meta'
-    )
+    meta = consume meta'
+    name = name'
+    datatype = DataTypeStringForeign
+    if default is None then
+      mask = _Index()
+    else
+      mask = _Index() or _Default()
+      default_string_value = default
+    end
 
-  fun reference(
-    col: Column,
-    column: Column)
-  : Column =>
+  fun ref reference(
+    column: Column val)
+  =>
     let newmeta: Map[String val, (I64 | String val | Array[String val] val)] trn =
-      match _Column.meta(col)
+      match meta
       | let meta': Map[String val, (I64 | String val | Array[String val] val)] val =>
         let meta'': Map[String val, (I64 | String val | Array[String val] val)] trn = recover trn Map[String val, (I64 | String val | Array[String val] val)] end
         for (k, v) in meta'.pairs() do
           meta''(k) = v
         end
-        meta''("column") = _Column.name(column)
+        meta''("column") = column.name
         consume meta''
       else
         let meta': Map[String val, (I64 | String val | Array[String val] val)] trn = recover trn Map[String val, (I64 | String val | Array[String val] val)] end
-        meta'("column") = _Column.name(column)
+        meta'("column") = column.name
         consume meta'
       end
-    apply(
-      col._1,
-      col._2,
-      col._3,
-      col._4,
-      col._5,
-      col._6,
-      col._7,
-      col._8,
-      col._9,
-      consume newmeta
-    )
+    meta = consume newmeta
 
-  fun on(
-    col: Column,
+  fun ref on(
     table: Table val)
-  : Column =>
+  =>
     let newmeta: Map[String val, (I64 | String val | Array[String val] val)] trn =
-      match _Column.meta(col)
+      match meta
       | let meta': Map[String val, (I64 | String val | Array[String val] val)] val =>
         let meta'': Map[String val, (I64 | String val | Array[String val] val)] trn = recover trn Map[String val, (I64 | String val | Array[String val] val)] end
         for (k, v) in meta'.pairs() do
@@ -1226,32 +765,9 @@ primitive ColumnBuilder
         meta'("table") = table.name()
         consume meta'
       end
-    apply(
-      col._1,
-      col._2,
-      col._3,
-      col._4,
-      col._5,
-      col._6,
-      col._7,
-      col._8,
-      col._9,
-      consume newmeta
-    )
+    meta = consume newmeta
 
-  fun on_delete(
-    col: Column,
+  fun ref on_delete(
     delete: ForeignOnDelete)
-  : Column =>
-    apply(
-      col._1,
-      col._2,
-      col._3,
-      col._4,
-      col._5,
-      col._6,
-      col._7,
-      col._8,
-      delete,
-      col._10
-    )
+  =>
+    foreign_on_delete = delete

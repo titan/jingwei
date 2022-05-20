@@ -11,51 +11,51 @@ primitive SqliteSchemaResolver is SchemaResolver
     let field_stmts: Array[String val] iso = recover iso Array[String val](table.columns().size()) end
     let foreign_stmts: Array[String val] iso = recover iso Array[String val](table.columns().size()) end
     for column in table.columns().values() do
-      let colname = corrector.correct(_Column.name(column))
-      let mask = _Column.mask(column)
+      let colname = corrector.correct(column.name)
+      let mask = column.mask
       let nullable = (mask and _Nullable()) == _Nullable()
       let unique = (mask and _Unique()) == _Unique()
       let unsigned = (mask and _Unsigned()) == _Unsigned()
       let default = (mask and _Default()) == _Default()
-      let meta = _Column.meta(column)
-      match _Column.datatype(column)
+      let meta = column.meta
+      match column.datatype
       | DataTypeIncrements =>
         field_stmts.push(_increments(colname))
       | DataTypeInteger =>
-        let value: I64 = _Column.default_integer_value(column)
+        let value: I64 = column.default_integer_value
         field_stmts.push(_integer(colname, nullable, unique, unsigned, default, value))
       | DataTypeSmallInteger =>
-        let value: I64 = _Column.default_integer_value(column)
+        let value: I64 = column.default_integer_value
         field_stmts.push(_integer(colname, nullable, unique, unsigned, default, value))
       | DataTypeMediumInteger =>
-        let value: I64 = _Column.default_integer_value(column)
+        let value: I64 = column.default_integer_value
         field_stmts.push(_integer(colname, nullable, unique, unsigned, default, value))
       | DataTypeBigInteger =>
-        let value: I64 = _Column.default_integer_value(column)
+        let value: I64 = column.default_integer_value
         field_stmts.push(_integer(colname, nullable, unique, unsigned, default, value))
       | DataTypeDecimal =>
-        let value: F64 = _Column.default_float_value(column)
+        let value: F64 = column.default_float_value
         field_stmts.push(_decimal(colname, nullable, unique, unsigned, default, value, meta))
       | DataTypeDouble =>
-        let value: F64 = _Column.default_float_value(column)
+        let value: F64 = column.default_float_value
         field_stmts.push(_float(colname, nullable, unique, unsigned, default, value))
       | DataTypeFloat =>
-        let value: F64 = _Column.default_float_value(column)
+        let value: F64 = column.default_float_value
         field_stmts.push(_float(colname, nullable, unique, unsigned, default, value))
       | DataTypeChar =>
-        let value: (String val | None) = _Column.default_string_value(column)
+        let value: (String val | None) = column.default_string_value
         field_stmts.push(_char(colname, nullable, unique, unsigned, default, value, meta))
       | DataTypeString =>
-        let value: (String val | None) = _Column.default_string_value(column)
+        let value: (String val | None) = column.default_string_value
         field_stmts.push(_varchar(colname, nullable, unique, unsigned, default, value, meta))
       | DataTypeText =>
-        let value: (String val | None) = _Column.default_string_value(column)
+        let value: (String val | None) = column.default_string_value
         field_stmts.push(_text(colname, nullable, unique, unsigned, default, value))
       | DataTypeMediumText =>
-        let value: (String val | None) = _Column.default_string_value(column)
+        let value: (String val | None) = column.default_string_value
         field_stmts.push(_text(colname, nullable, unique, unsigned, default, value))
       | DataTypeLongText =>
-        let value: (String val | None) = _Column.default_string_value(column)
+        let value: (String val | None) = column.default_string_value
         field_stmts.push(_text(colname, nullable, unique, unsigned, default, value))
       | DataTypeDate =>
         field_stmts.push(_date(colname, nullable, unique, unsigned, default))
@@ -70,23 +70,23 @@ primitive SqliteSchemaResolver is SchemaResolver
       | DataTypeSoftDelete =>
         field_stmts.push(_soft_delete())
       | DataTypeBinary =>
-        let value: (String val | None) = _Column.default_string_value(column)
+        let value: (String val | None) = column.default_string_value
         field_stmts.push(_blob(colname, nullable, unique, unsigned, default, value))
       | DataTypeBoolean =>
-        let value: Bool = _Column.default_boolean_value(column)
+        let value: Bool = column.default_boolean_value
         field_stmts.push(_bool(colname, nullable, unique, unsigned, default, value))
       | DataTypeEnum =>
-        let value: (String val | None) = _Column.default_string_value(column)
+        let value: (String val | None) = column.default_string_value
         field_stmts.push(_enum(colname, nullable, unique, unsigned, default, value, meta))
       | DataTypeJson =>
-        let value: (JsonDoc val | None) = _Column.default_json_value(column)
+        let value: (JsonDoc val | None) = column.default_json_value
         field_stmts.push(_json(colname, nullable, unique, unsigned, default, value))
       | DataTypeForeign =>
-        let value: I64 = _Column.default_integer_value(column)
+        let value: I64 = column.default_integer_value
         field_stmts.push(_foreign(colname, nullable, unique, unsigned, default, value))
         foreign_stmts.push(_foreign_key(column, corrector))
       | DataTypeStringForeign =>
-        let value: (String val | None) = _Column.default_string_value(column)
+        let value: (String val | None) = column.default_string_value
         field_stmts.push(_string_foreign(colname, nullable, unique, unsigned, default, value))
         foreign_stmts.push(_foreign_key(column, corrector))
       end
@@ -103,12 +103,12 @@ primitive SqliteSchemaResolver is SchemaResolver
 
   fun val create_index(
     table: Table val,
-    column: Column,
+    column: Column val,
     corrector: IdentifierCorrector val)
   : String val =>
     let name = corrector.correct(table.name())
     let lower_name: String val = name.lower()
-    let col: String val = _Column.name(column, corrector~correct())
+    let col: String val = corrector.correct(column.name)
     let lower_col: String val = col.lower()
     let result: String iso = recover iso String("CREATE INDEX __index ON ()".size() + (name.size() << 1) + (col.size() << 1)) end
     (consume result) .> append("CREATE INDEX ") .> append(lower_name) .> append("_") .> append(lower_col) .> append("_index ON ") .> append(name) .> append("(") .> append(col) .> append(")")
@@ -411,10 +411,10 @@ primitive SqliteSchemaResolver is SchemaResolver
     column: Column val,
     corrector: IdentifierCorrector val)
   : String val =>
-    if (_Column.datatype(column) is DataTypeForeign) or
-      (_Column.datatype(column) is DataTypeStringForeign) then
-      let meta: (Map[String val, (I64 | String val | Array[String val] val)] val | None) = _Column.meta(column)
-      let name: String val = _Column.name(column, corrector~correct())
+    if (column.datatype is DataTypeForeign) or
+      (column.datatype is DataTypeStringForeign) then
+      let meta: (Map[String val, (I64 | String val | Array[String val] val)] val | None) = column.meta
+      let name: String val = corrector.correct(column.name)
       let table: String val =
         match meta
         | let meta': Map[String val, (I64 | String val | Array[String val] val)] val =>
@@ -448,7 +448,7 @@ primitive SqliteSchemaResolver is SchemaResolver
             "missing column name"
         end
       let delete: String val =
-        match _Column.foreign_on_delete(column)
+        match column.foreign_on_delete
         | Restrict => "RESTRICT"
         | Cascade => "CASCADE"
         | SetNull => "SET NULL"

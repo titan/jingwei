@@ -37,10 +37,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.integer("int")
+            recover val Column.increments("id") end
+            recover val Column.integer("int") end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table1, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, int INTEGER NOT NULL)")
@@ -49,10 +49,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.integer("int"))
+            recover val Column.increments("id") end
+            recover val Column.integer("int") .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table2, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, int INTEGER)")
@@ -61,10 +61,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unique(ColumnBuilder.nullable(ColumnBuilder.integer("int")))
+            recover val Column.increments("id") end
+            recover val Column.integer("int") .> nullable() .> unique() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table3, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, int INTEGER UNIQUE)")
@@ -73,10 +73,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.integer("int", I64(0)))
+            recover val Column.increments("id") end
+            recover val Column.integer("int", I64(0)) .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table4, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, int INTEGER DEFAULT 0)")
@@ -85,10 +85,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.nullable(ColumnBuilder.integer("int")))
+            recover val Column.increments("id") end
+            recover val Column.integer("int") .> nullable() .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table5, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, int INTEGER CHECK (int > 0))")
@@ -97,10 +97,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.integer("int"))
+            recover val Column.increments("id") end
+            recover val Column.integer("int") .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table6, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, int INTEGER NOT NULL CHECK (int > 0))")
@@ -113,10 +113,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.decimal("decimal", 5, 3)
+            recover val Column.increments("id") end
+            recover val Column.decimal("decimal", 5, 3) end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table1, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, decimal DECIMAL(5,3) NOT NULL)")
@@ -125,10 +125,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.decimal("decimal", 5, 3))
+            recover val Column.increments("id") end
+            recover val Column.decimal("decimal", 5, 3) .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table2, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, decimal DECIMAL(5,3))")
@@ -137,10 +137,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unique(ColumnBuilder.nullable(ColumnBuilder.decimal("decimal", 5, 3)))
+            recover val Column.increments("id") end
+            recover val Column.decimal("decimal", 5, 3) .> nullable() .> unique() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table3, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, decimal DECIMAL(5,3) UNIQUE)")
@@ -149,10 +149,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.decimal("decimal", 5, 3, 0.0))
+            recover val Column.increments("id") end
+            recover val Column.decimal("decimal", 5, 3, 0.0) .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table4, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, decimal DECIMAL(5,3) DEFAULT 0)")
@@ -161,10 +161,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.nullable(ColumnBuilder.decimal("decimal", 5, 3)))
+            recover val Column.increments("id") end
+            recover val Column.decimal("decimal", 5, 3) .> nullable() .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table5, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, decimal DECIMAL(5,3) CHECK (decimal > 0))")
@@ -173,10 +173,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.decimal("decimal", 5, 3))
+            recover val Column.increments("id") end
+            recover val Column.decimal("decimal", 5, 3) .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table6, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, decimal DECIMAL(5,3) NOT NULL CHECK (decimal > 0))")
@@ -189,10 +189,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.float("float")
+            recover val Column.increments("id") end
+            recover val Column.float("float") end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table1, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, float REAL NOT NULL)")
@@ -201,10 +201,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.float("float"))
+            recover val Column.increments("id") end
+            recover val Column.float("float") .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table2, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, float REAL)")
@@ -213,10 +213,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unique(ColumnBuilder.nullable(ColumnBuilder.float("float")))
+            recover val Column.increments("id") end
+            recover val Column.float("float") .> nullable() .> unique() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table3, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, float REAL UNIQUE)")
@@ -225,10 +225,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.float("float", 0.0))
+            recover val Column.increments("id") end
+            recover val Column.float("float", 0.0) .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table4, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, float REAL DEFAULT 0)")
@@ -237,10 +237,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.nullable(ColumnBuilder.float("float")))
+            recover val Column.increments("id") end
+            recover val Column.float("float") .> nullable() .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table5, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, float REAL CHECK (float > 0))")
@@ -249,10 +249,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.float("float"))
+            recover val Column.increments("id") end
+            recover val Column.float("float") .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table6, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, float REAL NOT NULL CHECK (float > 0))")
@@ -265,10 +265,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.char("char", 255)
+            recover val Column.increments("id") end
+            recover val Column.char("char", 255) end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table1, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, char VARCHAR NOT NULL CHECK (length(char) <= 255))")
@@ -277,10 +277,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.char("char", 255))
+            recover val Column.increments("id") end
+            recover val Column.char("char", 255) .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table2, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, char VARCHAR CHECK (length(char) <= 255))")
@@ -289,10 +289,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unique(ColumnBuilder.nullable(ColumnBuilder.char("char", 255)))
+            recover val Column.increments("id") end
+            recover val Column.char("char", 255) .> nullable() .> unique() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table3, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, char VARCHAR UNIQUE CHECK (length(char) <= 255))")
@@ -301,10 +301,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.char("char", 255, ""))
+            recover val Column.increments("id") end
+            recover val Column.char("char", 255, "") .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table4, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, char VARCHAR DEFAULT '' CHECK (length(char) <= 255))")
@@ -313,10 +313,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.nullable(ColumnBuilder.char("char", 255)))
+            recover val Column.increments("id") end
+            recover val Column.char("char", 255) .> nullable() .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table5, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, char VARCHAR CHECK (char > 0) CHECK (length(char) <= 255))")
@@ -325,10 +325,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.char("char", 255))
+            recover val Column.increments("id") end
+            recover val Column.char("char", 255) .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table6, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, char VARCHAR NOT NULL CHECK (char > 0) CHECK (length(char) <= 255))")
@@ -341,10 +341,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.string("string", 255)
+            recover val Column.increments("id") end
+            recover val Column.string("string", 255) end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table1, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, string VARCHAR NOT NULL CHECK (length(string) <= 255))")
@@ -353,10 +353,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.string("string", 255))
+            recover val Column.increments("id") end
+            recover val Column.string("string", 255) .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table2, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, string VARCHAR CHECK (length(string) <= 255))")
@@ -365,10 +365,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unique(ColumnBuilder.nullable(ColumnBuilder.string("string", 255)))
+            recover val Column.increments("id") end
+            recover val Column.string("string", 255) .> nullable() .> unique() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table3, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, string VARCHAR UNIQUE CHECK (length(string) <= 255))")
@@ -377,10 +377,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.string("string", 255, ""))
+            recover val Column.increments("id") end
+            recover val Column.string("string", 255, "") .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table4, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, string VARCHAR DEFAULT '' CHECK (length(string) <= 255))")
@@ -389,10 +389,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.nullable(ColumnBuilder.string("string", 255)))
+            recover val Column.increments("id") end
+            recover val Column.string("string", 255) .> nullable() .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table5, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, string VARCHAR CHECK (string > 0) CHECK (length(string) <= 255))")
@@ -401,10 +401,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.string("string", 255))
+            recover val Column.increments("id") end
+            recover val Column.string("string", 255) .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table6, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, string VARCHAR NOT NULL CHECK (string > 0) CHECK (length(string) <= 255))")
@@ -417,10 +417,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.text("text")
+            recover val Column.increments("id") end
+            recover val Column.text("text") end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table1, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, text TEXT NOT NULL)")
@@ -429,10 +429,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.text("text"))
+            recover val Column.increments("id") end
+            recover val Column.text("text") .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table2, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, text TEXT)")
@@ -441,10 +441,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unique(ColumnBuilder.nullable(ColumnBuilder.text("text")))
+            recover val Column.increments("id") end
+            recover val Column.text("text") .> nullable() .> unique() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table3, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, text TEXT UNIQUE)")
@@ -453,10 +453,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.text("text", ""))
+            recover val Column.increments("id") end
+            recover val Column.text("text", "") .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table4, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, text TEXT DEFAULT '')")
@@ -465,10 +465,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.nullable(ColumnBuilder.text("text")))
+            recover val Column.increments("id") end
+            recover val Column.text("text") .> nullable() .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table5, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, text TEXT CHECK (text > 0))")
@@ -477,10 +477,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.text("text"))
+            recover val Column.increments("id") end
+            recover val Column.text("text") .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table6, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, text TEXT NOT NULL CHECK (text > 0))")
@@ -493,10 +493,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.date("date")
+            recover val Column.increments("id") end
+            recover val Column.date("date") end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table1, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, date DATE NOT NULL)")
@@ -505,10 +505,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.date("date"))
+            recover val Column.increments("id") end
+            recover val Column.date("date") .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table2, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, date DATE)")
@@ -517,10 +517,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unique(ColumnBuilder.nullable(ColumnBuilder.date("date")))
+            recover val Column.increments("id") end
+            recover val Column.date("date") .> nullable() .> unique() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table3, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, date DATE UNIQUE)")
@@ -529,10 +529,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.date("date", true))
+            recover val Column.increments("id") end
+            recover val Column.date("date", true) .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table4, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, date DATE DEFAULT CURRENT_TIMESTAMP)")
@@ -541,10 +541,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.nullable(ColumnBuilder.date("date")))
+            recover val Column.increments("id") end
+            recover val Column.date("date") .> nullable() .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table5, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, date DATE CHECK (date > 0))")
@@ -553,10 +553,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.date("date"))
+            recover val Column.increments("id") end
+            recover val Column.date("date") .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table6, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, date DATE NOT NULL CHECK (date > 0))")
@@ -569,10 +569,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.datetime("datetime")
+            recover val Column.increments("id") end
+            recover val Column.datetime("datetime") end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table1, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, datetime DATETIME NOT NULL)")
@@ -581,10 +581,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.datetime("datetime"))
+            recover val Column.increments("id") end
+            recover val Column.datetime("datetime") .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table2, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, datetime DATETIME)")
@@ -593,10 +593,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unique(ColumnBuilder.nullable(ColumnBuilder.datetime("datetime")))
+            recover val Column.increments("id") end
+            recover val Column.datetime("datetime") .> nullable() .> unique() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table3, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, datetime DATETIME UNIQUE)")
@@ -605,10 +605,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.datetime("datetime", true))
+            recover val Column.increments("id") end
+            recover val Column.datetime("datetime", true) .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table4, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, datetime DATETIME DEFAULT CURRENT_TIMESTAMP)")
@@ -617,10 +617,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.nullable(ColumnBuilder.datetime("datetime")))
+            recover val Column.increments("id") end
+            recover val Column.datetime("datetime") .> nullable() .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table5, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, datetime DATETIME CHECK (datetime > 0))")
@@ -629,10 +629,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.datetime("datetime"))
+            recover val Column.increments("id") end
+            recover val Column.datetime("datetime") .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table6, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, datetime DATETIME NOT NULL CHECK (datetime > 0))")
@@ -645,10 +645,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.time("time")
+            recover val Column.increments("id") end
+            recover val Column.time("time") end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table1, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, time TIME NOT NULL)")
@@ -657,10 +657,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.time("time"))
+            recover val Column.increments("id") end
+            recover val Column.time("time") .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table2, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, time TIME)")
@@ -669,10 +669,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unique(ColumnBuilder.nullable(ColumnBuilder.time("time")))
+            recover val Column.increments("id") end
+            recover val Column.time("time") .> nullable() .> unique() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table3, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, time TIME UNIQUE)")
@@ -681,10 +681,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.time("time", true))
+            recover val Column.increments("id") end
+            recover val Column.time("time", true) .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table4, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, time TIME DEFAULT CURRENT_TIMESTAMP)")
@@ -693,10 +693,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.nullable(ColumnBuilder.time("time")))
+            recover val Column.increments("id") end
+            recover val Column.time("time") .> nullable() .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table5, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, time TIME CHECK (time > 0))")
@@ -705,10 +705,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.time("time"))
+            recover val Column.increments("id") end
+            recover val Column.time("time") .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table6, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, time TIME NOT NULL CHECK (time > 0))")
@@ -721,10 +721,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.timestamp("timestamp")
+            recover val Column.increments("id") end
+            recover val Column.timestamp("timestamp") end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table1, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, timestamp DATETIME NOT NULL)")
@@ -733,10 +733,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.timestamp("timestamp"))
+            recover val Column.increments("id") end
+            recover val Column.timestamp("timestamp") .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table2, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, timestamp DATETIME)")
@@ -745,10 +745,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unique(ColumnBuilder.nullable(ColumnBuilder.timestamp("timestamp")))
+            recover val Column.increments("id") end
+            recover val Column.timestamp("timestamp") .> nullable() .> unique() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table3, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, timestamp DATETIME UNIQUE)")
@@ -757,10 +757,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.timestamp("timestamp", true))
+            recover val Column.increments("id") end
+            recover val Column.timestamp("timestamp", true) .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table4, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)")
@@ -769,10 +769,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.nullable(ColumnBuilder.timestamp("timestamp")))
+            recover val Column.increments("id") end
+            recover val Column.timestamp("timestamp") .> nullable() .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table5, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, timestamp DATETIME CHECK (timestamp > 0))")
@@ -781,10 +781,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.timestamp("timestamp"))
+            recover val Column.increments("id") end
+            recover val Column.timestamp("timestamp") .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table6, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, timestamp DATETIME NOT NULL CHECK (timestamp > 0))")
@@ -797,10 +797,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.timestamps()
+            recover val Column.increments("id") end
+            recover val Column.timestamps() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP)")
@@ -813,10 +813,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.soft_delete()
+            recover val Column.increments("id") end
+            recover val Column.soft_delete() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, deleted_at DATETIME)")
@@ -829,10 +829,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.binary("binary")
+            recover val Column.increments("id") end
+            recover val Column.binary("binary") end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table1, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, binary BLOB NOT NULL)")
@@ -841,10 +841,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.binary("binary"))
+            recover val Column.increments("id") end
+            recover val Column.binary("binary") .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table2, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, binary BLOB)")
@@ -853,10 +853,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unique(ColumnBuilder.nullable(ColumnBuilder.binary("binary")))
+            recover val Column.increments("id") end
+            recover val Column.binary("binary") .> nullable() .> unique() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table3, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, binary BLOB UNIQUE)")
@@ -865,10 +865,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.binary("binary", ""))
+            recover val Column.increments("id") end
+            recover val Column.binary("binary", "") .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table4, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, binary BLOB DEFAULT '')")
@@ -877,10 +877,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.nullable(ColumnBuilder.binary("binary")))
+            recover val Column.increments("id") end
+            recover val Column.binary("binary") .> nullable() .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table5, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, binary BLOB CHECK (binary > 0))")
@@ -889,10 +889,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.binary("binary"))
+            recover val Column.increments("id") end
+            recover val Column.binary("binary") .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table6, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, binary BLOB NOT NULL CHECK (binary > 0))")
@@ -905,10 +905,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.boolean("boolean")
+            recover val Column.increments("id") end
+            recover val Column.boolean("boolean") end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table1, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, boolean BOOLEAN NOT NULL)")
@@ -917,10 +917,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.boolean("boolean"))
+            recover val Column.increments("id") end
+            recover val Column.boolean("boolean") .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table2, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, boolean BOOLEAN)")
@@ -929,10 +929,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unique(ColumnBuilder.nullable(ColumnBuilder.boolean("boolean")))
+            recover val Column.increments("id") end
+            recover val Column.boolean("boolean") .> nullable() .> unique() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table3, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, boolean BOOLEAN UNIQUE)")
@@ -941,10 +941,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.boolean("boolean", true))
+            recover val Column.increments("id") end
+            recover val Column.boolean("boolean", true) .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table4, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, boolean BOOLEAN DEFAULT true)")
@@ -953,10 +953,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.boolean("boolean", false))
+            recover val Column.increments("id") end
+            recover val Column.boolean("boolean", false) .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table5, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, boolean BOOLEAN DEFAULT false)")
@@ -965,10 +965,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.boolean("boolean"))
+            recover val Column.increments("id") end
+            recover val Column.boolean("boolean") .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table6, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, boolean BOOLEAN NOT NULL CHECK (boolean > 0))")
@@ -992,10 +992,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.enum("enum", enum')
+            recover val Column.increments("id") end
+            recover val Column.enum("enum", enum') end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table1, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, enum VARCHAR NOT NULL CHECK (" + " OR ".join(Iter[String val](enum_array'.values()).map[String val]({(x: String val): String val => "enum = '" + x + "'"})) + "))")
@@ -1004,10 +1004,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.enum("enum", enum'))
+            recover val Column.increments("id") end
+            recover val Column.enum("enum", enum') .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table2, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, enum VARCHAR CHECK (" + " OR ".join(Iter[String val](enum_array'.values()).map[String val]({(x: String val): String val => "enum = '" + x + "'"})) + "))")
@@ -1016,10 +1016,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unique(ColumnBuilder.nullable(ColumnBuilder.enum("enum", enum')))
+            recover val Column.increments("id") end
+            recover val Column.enum("enum", enum') .> nullable() .> unique() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table3, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, enum VARCHAR UNIQUE CHECK (" + " OR ".join(Iter[String val](enum_array'.values()).map[String val]({(x: String val): String val => "enum = '" + x + "'"})) + "))")
@@ -1028,10 +1028,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.enum("enum", enum', "a"))
+            recover val Column.increments("id") end
+            recover val Column.enum("enum", enum', "a") .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table4, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, enum VARCHAR DEFAULT 'a' CHECK (" + " OR ".join(Iter[String val](enum_array'.values()).map[String val]({(x: String val): String val => "enum = '" + x + "'"})) + "))")
@@ -1040,10 +1040,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.enum("enum", enum'))
+            recover val Column.increments("id") end
+            recover val Column.enum("enum", enum') .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table5, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, enum VARCHAR NOT NULL CHECK (enum > 0) CHECK (" + " OR ".join(Iter[String val](enum_array'.values()).map[String val]({(x: String val): String val => "enum = '" + x + "'"})) + "))")
@@ -1056,10 +1056,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.json("json")
+            recover val Column.increments("id") end
+            recover val Column.json("json") end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table1, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, json TEXT NOT NULL)")
@@ -1068,10 +1068,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.nullable(ColumnBuilder.json("json"))
+            recover val Column.increments("id") end
+            recover val Column.json("json") .> nullable() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table2, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, json TEXT)")
@@ -1080,10 +1080,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unique(ColumnBuilder.nullable(ColumnBuilder.json("json")))
+            recover val Column.increments("id") end
+            recover val Column.json("json") .> nullable() .> unique() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table3, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, json TEXT UNIQUE)")
@@ -1094,10 +1094,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
         object val is Table
           fun box name(): String => "test"
 
-          fun box columns(): Array[Column] val =>
+          fun box columns(): Array[Column val] val =>
             [
-              ColumnBuilder.increments("id")
-              ColumnBuilder.nullable(ColumnBuilder.json("json", json))
+              recover val Column.increments("id") end
+              recover val Column.json("json", json) .> nullable() end
             ]
         end
       h.assert_eq[String val](SqliteSchemaResolver.create_table(table4, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, json TEXT DEFAULT '{\"key\":\"value\"}')")
@@ -1109,10 +1109,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.nullable(ColumnBuilder.json("json")))
+            recover val Column.increments("id") end
+            recover val Column.json("json") .> nullable() .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table5, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, json TEXT CHECK (json > 0))")
@@ -1121,10 +1121,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.unsigned(ColumnBuilder.json("json"))
+            recover val Column.increments("id") end
+            recover val Column.json("json") .> unsigned() end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table6, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, json TEXT NOT NULL CHECK (json > 0))")
@@ -1133,12 +1133,12 @@ class \nodoc\ _TestSqliteSchema is UnitTest
     h: TestHelper,
     corrector: IdentifierCorrector val)
   =>
-    let foreign_primary_key: Column = ColumnBuilder.increments("id")
+    let foreign_primary_key: Column val = recover val Column.increments("id") end
     let foreign_table: Table val =
       object val is Table
         fun box name(): String => "foreign"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
             foreign_primary_key
           ]
@@ -1148,10 +1148,10 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.on_delete(ColumnBuilder.on(ColumnBuilder.reference(ColumnBuilder.foreign("foreign"), foreign_primary_key), foreign_table), Cascade)
+            recover val Column.increments("id") end
+            recover val Column.foreign("foreign") .> reference(foreign_primary_key) .> on(foreign_table) .> on_delete(Cascade) end
           ]
       end
     h.assert_eq[String val](SqliteSchemaResolver.create_table(table1, corrector), "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 'foreign' INTEGER NOT NULL, FOREIGN KEY('foreign') REFERENCES 'foreign'(id) ON DELETE CASCADE)")
@@ -1165,17 +1165,17 @@ class \nodoc\ _TestSqliteSchema is UnitTest
       object val is Table
         fun box name(): String => "test"
 
-        fun box columns(): Array[Column] val =>
+        fun box columns(): Array[Column val] val =>
           [
-            ColumnBuilder.increments("id")
-            ColumnBuilder.index(ColumnBuilder.integer("idx"))
+            recover val Column.increments("id") end
+            recover val Column.integer("idx") .> index() end
           ]
       end
 
     let stmts: Array[String val] = Array[String val]
 
     for column in table.columns().values() do
-      if (_Column.mask(column) and _Index()) == _Index() then
+      if (column.mask and _Index()) == _Index() then
         stmts.push(SqliteSchemaResolver.create_index(table, column, corrector))
       end
     end

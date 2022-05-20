@@ -7,7 +7,7 @@ trait SchemaResolver
 
   fun val create_index(
     table: Table val,
-    column: Column,
+    column: Column val,
     corrector: IdentifierCorrector val)
   : String val
 
@@ -22,7 +22,7 @@ primitive Schema
     for table in tables.values() do
       table_stmts.push(resolver.create_table(table, corrector))
       for column in table.columns().values() do
-        if (_Column.mask(column) and _Index()) == _Index() then
+        if (column.mask and _Index()) == _Index() then
           index_stmts.push(resolver.create_index(table, column, corrector))
         end
       end

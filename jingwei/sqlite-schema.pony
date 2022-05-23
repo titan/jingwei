@@ -94,11 +94,11 @@ primitive SqliteSchemaResolver is SchemaResolver
     let fields: String val = ", ".join((consume field_stmts).values())
     let foreigns: String val = ", ".join((consume foreign_stmts).values())
     let name: String val = corrector.correct(table.name())
-    let result: String iso = recover iso String("CREATE TABLE  (, )".size() + name.size() + fields.size() + foreigns.size()) end
+    let result: String iso = recover iso String("CREATE TABLE IF NOT EXISTS  (, )".size() + name.size() + fields.size() + foreigns.size()) end
     if foreigns.size() > 0 then
-      (consume result) .> append("CREATE TABLE ") .> append(name) .> append(" (") .> append(fields) .> append(", ") .> append(foreigns) .> append(")")
+      (consume result) .> append("CREATE TABLE IF NOT EXISTS ") .> append(name) .> append(" (") .> append(fields) .> append(", ") .> append(foreigns) .> append(")")
     else
-      (consume result) .> append("CREATE TABLE ") .> append(name) .> append(" (") .> append(fields) .> append(")")
+      (consume result) .> append("CREATE TABLE IF NOT EXISTS ") .> append(name) .> append(" (") .> append(fields) .> append(")")
     end
 
   fun val create_index(
@@ -110,8 +110,8 @@ primitive SqliteSchemaResolver is SchemaResolver
     let lower_name: String val = name.lower()
     let col: String val = corrector.correct(column.name)
     let lower_col: String val = col.lower()
-    let result: String iso = recover iso String("CREATE INDEX __index ON ()".size() + (name.size() << 1) + (col.size() << 1)) end
-    (consume result) .> append("CREATE INDEX ") .> append(lower_name) .> append("_") .> append(lower_col) .> append("_index ON ") .> append(name) .> append("(") .> append(col) .> append(")")
+    let result: String iso = recover iso String("CREATE INDEX IF NOT EXISTS __index ON ()".size() + (name.size() << 1) + (col.size() << 1)) end
+    (consume result) .> append("CREATE INDEX IF NOT EXISTS ") .> append(lower_name) .> append("_") .> append(lower_col) .> append("_index ON ") .> append(name) .> append("(") .> append(col) .> append(")")
 
   fun val _increments(
     name: String val)

@@ -1168,7 +1168,7 @@ class \nodoc\ _TestSqliteSchema is UnitTest
         fun box columns(): Array[Column val] val =>
           [
             recover val Column.increments("id") end
-            recover val Column.integer("idx") .> index() end
+            recover val Column.integer("index") .> index() end
           ]
       end
 
@@ -1181,7 +1181,7 @@ class \nodoc\ _TestSqliteSchema is UnitTest
     end
     h.assert_eq[USize](stmts.size(), 1)
     try
-      h.assert_eq[String val](stmts(0)?, "CREATE INDEX IF NOT EXISTS test_idx_index ON test(idx)")
+      h.assert_eq[String val](stmts(0)?, "CREATE INDEX IF NOT EXISTS test_index_index ON test('index')")
     else
       h.fail("Expect at least one index statement")
     end

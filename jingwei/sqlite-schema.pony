@@ -106,12 +106,16 @@ primitive SqliteSchemaResolver is SchemaResolver
     column: Column val,
     corrector: IdentifierCorrector val)
   : String val =>
-    let name = corrector.correct(table.name())
-    let lower_name: String val = name.lower()
-    let col: String val = corrector.correct(column.name)
-    let lower_col: String val = col.lower()
-    let result: String iso = recover iso String("CREATE INDEX IF NOT EXISTS __index ON ()".size() + (name.size() << 1) + (col.size() << 1)) end
-    (consume result) .> append("CREATE INDEX IF NOT EXISTS ") .> append(lower_name) .> append("_") .> append(lower_col) .> append("_index ON ") .> append(name) .> append("(") .> append(col) .> append(")")
+    let origin_table_name: String val = table.name()
+    let lower_origin_table_name: String val = origin_table_name.lower()
+    let table_name: String val = corrector.correct(origin_table_name)
+    let lower_table_name: String val = table_name.lower()
+    let origin_column_name: String val = column.name
+    let lower_origin_column_name: String val = origin_column_name.lower()
+    let column_name: String val = corrector.correct(origin_column_name)
+    let lower_column_name: String val = column_name.lower()
+    let result: String iso = recover iso String("CREATE INDEX IF NOT EXISTS __index ON ()".size() + lower_table_name.size() + lower_column_name.size() + lower_origin_table_name.size() + lower_origin_column_name.size()) end
+    (consume result) .> append("CREATE INDEX IF NOT EXISTS ") .> append(lower_origin_table_name) .> append("_") .> append(lower_origin_column_name) .> append("_index ON ") .> append(lower_table_name) .> append("(") .> append(lower_column_name) .> append(")")
 
   fun val _increments(
     name: String val)

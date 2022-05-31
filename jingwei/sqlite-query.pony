@@ -509,8 +509,76 @@ primitive SqliteResultColumnResolver
     match col
     | let col': Column val =>
       corrector.correct(col'.name)
-    | let acol: AggregateColumn =>
-      SqliteExpressionResolver(acol, corrector)
+    | let call: CountCall val =>
+      let arg: String val =
+      match call.expr
+      | let expr: String val =>
+        expr
+      | let expr: Column val =>
+        corrector.correct(expr.name)
+      end
+      match call.alias
+      | let alias: String val =>
+        let alias' = corrector.correct(alias)
+        let result: String iso = recover iso String("COUNT() AS ".size() + arg.size() + alias'.size()) end
+        (consume result) .> append("COUNT(") .> append(arg) .> append(") AS ") .> append(alias')
+      | None =>
+        let result: String iso = recover iso String("COUNT()".size() + arg.size()) end
+        (consume result) .> append("COUNT(") .> append(arg) .> append(")")
+      end
+    | let call: MinCall val =>
+      let arg: String val =
+      match call.expr
+      | let expr: String val =>
+        expr
+      | let expr: Column val =>
+        corrector.correct(expr.name)
+      end
+      match call.alias
+      | let alias: String val =>
+        let alias' = corrector.correct(alias)
+        let result: String iso = recover iso String("MIN() AS ".size() + arg.size() + alias'.size()) end
+        (consume result) .> append("MIN(") .> append(arg) .> append(") AS ") .> append(alias')
+      | None =>
+        let result: String iso = recover iso String("MIN()".size() + arg.size()) end
+        (consume result) .> append("MIN(") .> append(arg) .> append(")")
+      end
+    | let call: MaxCall val =>
+      let arg: String val =
+      match call.expr
+      | let expr: String val =>
+        expr
+      | let expr: Column val =>
+        corrector.correct(expr.name)
+      end
+      match call.alias
+      | let alias: String val =>
+        let alias' = corrector.correct(alias)
+        let result: String iso = recover iso String("MAX() AS ".size() + arg.size() + alias'.size()) end
+        (consume result) .> append("MAX(") .> append(arg) .> append(") AS ") .> append(alias')
+      | None =>
+        let result: String iso = recover iso String("MAX()".size() + arg.size()) end
+        (consume result) .> append("MAX(") .> append(arg) .> append(")")
+      end
+    | let call: AvgCall val =>
+      let arg: String val =
+      match call.expr
+      | let expr: String val =>
+        expr
+      | let expr: Column val =>
+        corrector.correct(expr.name)
+      end
+      match call.alias
+      | let alias: String val =>
+        let alias' = corrector.correct(alias)
+        let result: String iso = recover iso String("AVG() AS ".size() + arg.size() + alias'.size()) end
+        (consume result) .> append("AVG(") .> append(arg) .> append(") AS ") .> append(alias')
+      | None =>
+        let result: String iso = recover iso String("AVG()".size() + arg.size()) end
+        (consume result) .> append("AVG(") .> append(arg) .> append(")")
+      end
+    | let expr: Expression =>
+      SqliteExpressionResolver(expr, corrector)
     end
 
 primitive SqliteQueryResolver is QueryResolver

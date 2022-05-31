@@ -283,3 +283,47 @@ primitive AssignmentBuilder
     expression: Expression)
   : Assignment =>
     (column, expression)
+
+class val CountCall
+  let expr: (String val | Column val)
+  let alias: (String val | None)
+
+  new val create(
+    expr': (String val | Column val),
+    alias': (String val | None) = None)
+  =>
+    expr = expr'
+    alias = alias'
+
+class val MinCall
+  let expr: (String val | Column val)
+  let alias: (String val | None)
+
+  new val create(
+    expr': (String val | Column val),
+    alias': (String val | None) = None)
+  =>
+    expr = expr'
+    alias = alias'
+
+class val MaxCall
+  let expr: (String val | Column val)
+  let alias: (String val | None)
+
+  new val create(
+    expr': (String val | Column val),
+    alias': (String val | None) = None)
+  =>
+    expr = expr'
+    alias = alias'
+
+class val AvgCall
+  let expr: (String val | Column val)
+  let alias: (String val | None)
+
+  new val create(
+    expr': (String val | Column val),
+    alias': (String val | None) = None)
+  =>
+    expr = expr'
+    alias = alias'

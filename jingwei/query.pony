@@ -24,7 +24,7 @@ type JoinClause is
 
 type DataSource is (TableOrSubquery val | Array[TableOrSubquery val] val | JoinClause val)
 
-type AggregateColumn is Expression
+type AggregateColumn is (Expression | CountCall val | MinCall val | MaxCall val | AvgCall val)
 
 type ResultColumn is (Column val | AggregateColumn)
 

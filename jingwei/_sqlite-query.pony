@@ -122,6 +122,86 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     end
     h.assert_eq[String val](SqliteQueryResolver.select(select12, corrector), "SELECT id, int FROM foo WHERE id > 0 GROUP BY int HAVING count(int) > 2 ORDER BY int LIMIT 10 OFFSET 1")
 
+    let cols13: Array[ResultColumn] val = [
+      CountCall(id)
+    ]
+    let select13 = recover val
+      Select(cols13) .>
+      from_table(table_foo) .>
+      where_filter(GreaterThanExpression(id, I64(0)))
+    end
+    h.assert_eq[String val](SqliteQueryResolver.select(select13, corrector), "SELECT COUNT(id) FROM foo WHERE id > 0")
+
+    let cols14: Array[ResultColumn] val = [
+      CountCall(id, "abort")
+    ]
+    let select14 = recover val
+      Select(cols14) .>
+      from_table(table_foo) .>
+      where_filter(GreaterThanExpression(id, I64(0)))
+    end
+    h.assert_eq[String val](SqliteQueryResolver.select(select14, corrector), "SELECT COUNT(id) AS 'abort' FROM foo WHERE id > 0")
+
+    let cols15: Array[ResultColumn] val = [
+      MinCall(id)
+    ]
+    let select15 = recover val
+      Select(cols15) .>
+      from_table(table_foo) .>
+      where_filter(GreaterThanExpression(id, I64(0)))
+    end
+    h.assert_eq[String val](SqliteQueryResolver.select(select15, corrector), "SELECT MIN(id) FROM foo WHERE id > 0")
+
+    let cols16: Array[ResultColumn] val = [
+      MinCall(id, "abort")
+    ]
+    let select16 = recover val
+      Select(cols16) .>
+      from_table(table_foo) .>
+      where_filter(GreaterThanExpression(id, I64(0)))
+    end
+    h.assert_eq[String val](SqliteQueryResolver.select(select16, corrector), "SELECT MIN(id) AS 'abort' FROM foo WHERE id > 0")
+
+    let cols17: Array[ResultColumn] val = [
+      MaxCall(id)
+    ]
+    let select17 = recover val
+      Select(cols17) .>
+      from_table(table_foo) .>
+      where_filter(GreaterThanExpression(id, I64(0)))
+    end
+    h.assert_eq[String val](SqliteQueryResolver.select(select17, corrector), "SELECT MAX(id) FROM foo WHERE id > 0")
+
+    let cols18: Array[ResultColumn] val = [
+      MaxCall(id, "abort")
+    ]
+    let select18 = recover val
+      Select(cols18) .>
+      from_table(table_foo) .>
+      where_filter(GreaterThanExpression(id, I64(0)))
+    end
+    h.assert_eq[String val](SqliteQueryResolver.select(select18, corrector), "SELECT MAX(id) AS 'abort' FROM foo WHERE id > 0")
+
+    let cols19: Array[ResultColumn] val = [
+      AvgCall(id)
+    ]
+    let select19 = recover val
+      Select(cols19) .>
+      from_table(table_foo) .>
+      where_filter(GreaterThanExpression(id, I64(0)))
+    end
+    h.assert_eq[String val](SqliteQueryResolver.select(select19, corrector), "SELECT AVG(id) FROM foo WHERE id > 0")
+
+    let cols20: Array[ResultColumn] val = [
+      AvgCall(id, "abort")
+    ]
+    let select20 = recover val
+      Select(cols20) .>
+      from_table(table_foo) .>
+      where_filter(GreaterThanExpression(id, I64(0)))
+    end
+    h.assert_eq[String val](SqliteQueryResolver.select(select20, corrector), "SELECT AVG(id) AS 'abort' FROM foo WHERE id > 0")
+
   fun _insert(
     h: TestHelper,
     corrector: IdentifierCorrector val)

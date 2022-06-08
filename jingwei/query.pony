@@ -197,14 +197,14 @@ class Select
     order_by_clause = (columns, order)
 
   fun ref limit(
-    limit': I64)
+    limit': USize)
   =>
-    limit_clause = limit'
+    limit_clause = limit'.i64()
 
   fun ref offset(
-    offset': I64)
+    offset': USize)
   =>
-    offset_clause = offset'
+    offset_clause = offset'.i64()
 
 class Insert
   var table: Table val

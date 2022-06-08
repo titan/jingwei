@@ -106,7 +106,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
       group_by([int]) .>
       having(GreaterThanExpression(ApplyExpression("count", [int]), I64(2))) .>
       order_by([int]) .>
-      limit(I64(10))
+      limit(10)
     end
     h.assert_eq[String val](SqliteQueryResolver.select(select11, corrector), "SELECT id, int FROM foo WHERE id > 0 GROUP BY int HAVING count(int) > 2 ORDER BY int LIMIT 10")
 
@@ -117,8 +117,8 @@ class \nodoc\ _TestSqliteQuery is UnitTest
       group_by([int]) .>
       having(GreaterThanExpression(ApplyExpression("count", [int]), I64(2))) .>
       order_by([int]) .>
-      limit(I64(10)) .>
-      offset(I64(1))
+      limit(10) .>
+      offset(1)
     end
     h.assert_eq[String val](SqliteQueryResolver.select(select12, corrector), "SELECT id, int FROM foo WHERE id > 0 GROUP BY int HAVING count(int) > 2 ORDER BY int LIMIT 10 OFFSET 1")
 

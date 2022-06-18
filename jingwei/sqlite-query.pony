@@ -247,8 +247,10 @@ primitive SqliteBoolExpressionResolver
     let left = SqliteExpressionResolver(expr.left, corrector, depth + 1)
     let right =
       match expr.right
-      | let expr': Expression val =>
-        SqliteExpressionResolver(expr', corrector, depth + 1)
+      | let expr': Array[Expression val] val =>
+        ", ".join(Iter[Expression val](expr'.values()).map[String val]({(x: Expression val): String val =>
+          SqliteExpressionResolver(x, corrector, depth + 1)
+        }))
       | let subquery: Select val =>
         SqliteQueryResolver.select(subquery, corrector)
       | None =>

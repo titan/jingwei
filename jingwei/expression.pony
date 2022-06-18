@@ -178,11 +178,11 @@ class val NotNullExpression
 
 class val InExpression
   let left: Expression val
-  let right: (Expression val | Select val | None)
+  let right: (Array[Expression val] val | Select val | None)
 
   new val create(
     left': Expression val,
-    right': (Expression val | Select val | None))
+    right': (Array[Expression val] val | Select val | None))
   =>
     left = left'
     right = right'

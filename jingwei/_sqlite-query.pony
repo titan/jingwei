@@ -202,6 +202,13 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     end
     h.assert_eq[String val](SqliteQueryResolver.select(select20, corrector), "SELECT AVG(id) AS 'abort' FROM foo WHERE id > 0")
 
+    let select21 = recover val
+      Select(cols, true)
+      .> from_table(table_foo)
+      .> where_filter(InExpression(id, [I64(0); I64(1)]))
+    end
+    h.assert_eq[String val](SqliteQueryResolver.select(select21, corrector), "SELECT DISTINCT id, int FROM foo WHERE id IN (0, 1)")
+
   fun _insert(
     h: TestHelper,
     corrector: IdentifierCorrector val)

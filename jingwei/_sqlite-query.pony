@@ -85,7 +85,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
       from_table(table_foo) .>
       where_filter(GreaterThanExpression(id, I64(0))) .>
       group_by([int]) .>
-      having(GreaterThanExpression(ApplyExpression("count", [int]), I64(2)))
+      having(GreaterThanExpression(ApplyExpression("count", [int], DataTypeInteger), I64(2)))
     end
     h.assert_eq[String val](SqliteQueryResolver.select(select9, corrector), "SELECT id, int FROM foo WHERE id > 0 GROUP BY int HAVING count(int) > 2")
 
@@ -94,7 +94,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
       from_table(table_foo) .>
       where_filter(GreaterThanExpression(id, I64(0))) .>
       group_by([int]) .>
-      having(GreaterThanExpression(ApplyExpression("count", [int]), I64(2))) .>
+      having(GreaterThanExpression(ApplyExpression("count", [int], DataTypeInteger), I64(2))) .>
       order_by([int])
     end
     h.assert_eq[String val](SqliteQueryResolver.select(select10, corrector), "SELECT id, int FROM foo WHERE id > 0 GROUP BY int HAVING count(int) > 2 ORDER BY int")
@@ -104,7 +104,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
       from_table(table_foo) .>
       where_filter(GreaterThanExpression(id, I64(0))) .>
       group_by([int]) .>
-      having(GreaterThanExpression(ApplyExpression("count", [int]), I64(2))) .>
+      having(GreaterThanExpression(ApplyExpression("count", [int], DataTypeInteger), I64(2))) .>
       order_by([int]) .>
       limit(10)
     end
@@ -115,7 +115,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
       from_table(table_foo) .>
       where_filter(GreaterThanExpression(id, I64(0))) .>
       group_by([int]) .>
-      having(GreaterThanExpression(ApplyExpression("count", [int]), I64(2))) .>
+      having(GreaterThanExpression(ApplyExpression("count", [int], DataTypeInteger), I64(2))) .>
       order_by([int]) .>
       limit(10) .>
       offset(1)
@@ -123,7 +123,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     h.assert_eq[String val](SqliteQueryResolver.select(select12, corrector), "SELECT id, int FROM foo WHERE id > 0 GROUP BY int HAVING count(int) > 2 ORDER BY int LIMIT 10 OFFSET 1")
 
     let cols13: Array[ResultColumn] val = [
-      CountCall(id)
+      CountCall(id, id.datatype)
     ]
     let select13 = recover val
       Select(cols13) .>
@@ -133,7 +133,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     h.assert_eq[String val](SqliteQueryResolver.select(select13, corrector), "SELECT COUNT(id) FROM foo WHERE id > 0")
 
     let cols14: Array[ResultColumn] val = [
-      CountCall(id, "abort")
+      CountCall(id, id.datatype, "abort")
     ]
     let select14 = recover val
       Select(cols14) .>
@@ -143,7 +143,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     h.assert_eq[String val](SqliteQueryResolver.select(select14, corrector), "SELECT COUNT(id) AS 'abort' FROM foo WHERE id > 0")
 
     let cols15: Array[ResultColumn] val = [
-      MinCall(id)
+      MinCall(id, id.datatype)
     ]
     let select15 = recover val
       Select(cols15) .>
@@ -153,7 +153,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     h.assert_eq[String val](SqliteQueryResolver.select(select15, corrector), "SELECT MIN(id) FROM foo WHERE id > 0")
 
     let cols16: Array[ResultColumn] val = [
-      MinCall(id, "abort")
+      MinCall(id, id.datatype, "abort")
     ]
     let select16 = recover val
       Select(cols16) .>
@@ -163,7 +163,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     h.assert_eq[String val](SqliteQueryResolver.select(select16, corrector), "SELECT MIN(id) AS 'abort' FROM foo WHERE id > 0")
 
     let cols17: Array[ResultColumn] val = [
-      MaxCall(id)
+      MaxCall(id, id.datatype)
     ]
     let select17 = recover val
       Select(cols17) .>
@@ -173,7 +173,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     h.assert_eq[String val](SqliteQueryResolver.select(select17, corrector), "SELECT MAX(id) FROM foo WHERE id > 0")
 
     let cols18: Array[ResultColumn] val = [
-      MaxCall(id, "abort")
+      MaxCall(id, id.datatype, "abort")
     ]
     let select18 = recover val
       Select(cols18) .>
@@ -183,7 +183,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     h.assert_eq[String val](SqliteQueryResolver.select(select18, corrector), "SELECT MAX(id) AS 'abort' FROM foo WHERE id > 0")
 
     let cols19: Array[ResultColumn] val = [
-      AvgCall(id)
+      AvgCall(id, id.datatype)
     ]
     let select19 = recover val
       Select(cols19) .>
@@ -193,7 +193,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     h.assert_eq[String val](SqliteQueryResolver.select(select19, corrector), "SELECT AVG(id) FROM foo WHERE id > 0")
 
     let cols20: Array[ResultColumn] val = [
-      AvgCall(id, "abort")
+      AvgCall(id, id.datatype, "abort")
     ]
     let select20 = recover val
       Select(cols20) .>

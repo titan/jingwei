@@ -247,13 +247,16 @@ primitive Placeholder
 class val ApplyExpression
   let name: String val
   let arguments: Array[Expression val] val
+  let return_type: DataType
 
   new val create(
     name': String val,
-    arguments': Array[Expression val] val)
+    arguments': Array[Expression val] val,
+    return_type': DataType)
   =>
     name = name'
     arguments = arguments'
+    return_type = return_type'
 
 type Expression is
   ( I64
@@ -284,46 +287,58 @@ primitive AssignmentBuilder
   : Assignment =>
     (column, expression)
 
-class val CountCall
-  let expr: (String val | Column val)
-  let alias: (String val | None)
-
-  new val create(
-    expr': (String val | Column val),
-    alias': (String val | None) = None)
-  =>
-    expr = expr'
-    alias = alias'
-
-class val MinCall
-  let expr: (String val | Column val)
-  let alias: (String val | None)
-
-  new val create(
-    expr': (String val | Column val),
-    alias': (String val | None) = None)
-  =>
-    expr = expr'
-    alias = alias'
-
-class val MaxCall
-  let expr: (String val | Column val)
-  let alias: (String val | None)
-
-  new val create(
-    expr': (String val | Column val),
-    alias': (String val | None) = None)
-  =>
-    expr = expr'
-    alias = alias'
-
-class val AvgCall
-  let expr: (String val | Column val)
-  let alias: (String val | None)
-
-  new val create(
-    expr': (String val | Column val),
-    alias': (String val | None) = None)
-  =>
-    expr = expr'
-    alias = alias'
+primitive ExpressionDataTypeEvaluator
+  fun val apply(
+    expr: Expression)
+  : (DataType | None) =>
+    match expr
+    | let _: I64 =>
+      DataTypeInteger
+    | let _: F64 =>
+      DataTypeFloat
+    | let _: String val =>
+      DataTypeString
+    | let x: Column val =>
+      x.datatype
+    | let _: BoolExpression =>
+      DataTypeBoolean
+    | let expr': AddExpression val =>
+      match ExpressionDataTypeEvaluator(expr'.left)
+      | let dt: DataType =>
+        dt
+      else
+        ExpressionDataTypeEvaluator(expr'.right)
+      end
+    | let expr': SubExpression val =>
+      match ExpressionDataTypeEvaluator(expr'.left)
+      | let dt: DataType =>
+        dt
+      else
+        ExpressionDataTypeEvaluator(expr'.right)
+      end
+    | let expr': MulExpression val =>
+      match ExpressionDataTypeEvaluator(expr'.left)
+      | let dt: DataType =>
+        dt
+      else
+        ExpressionDataTypeEvaluator(expr'.right)
+      end
+    | let expr': DivExpression val =>
+      match ExpressionDataTypeEvaluator(expr'.left)
+      | let dt: DataType =>
+        dt
+      else
+        ExpressionDataTypeEvaluator(expr'.right)
+      end
+    | let expr': RemExpression val =>
+      match ExpressionDataTypeEvaluator(expr'.left)
+      | let dt: DataType =>
+        dt
+      else
+        ExpressionDataTypeEvaluator(expr'.right)
+      end
+    | let expr': ApplyExpression val =>
+      expr'.return_type
+    else
+      None
+    end

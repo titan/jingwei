@@ -1,3 +1,59 @@
+class val CountCall
+  let expr: (String val | Column val)
+  let result_type: DataType
+  let alias: (String val | None)
+
+  new val create(
+    expr': (String val | Column val),
+    result_type': DataType,
+    alias': (String val | None) = None)
+  =>
+    expr = expr'
+    result_type = result_type'
+    alias = alias'
+
+class val MinCall
+  let expr: (String val | Column val)
+  let result_type: DataType
+  let alias: (String val | None)
+
+  new val create(
+    expr': (String val | Column val),
+    result_type': DataType,
+    alias': (String val | None) = None)
+  =>
+    expr = expr'
+    result_type = result_type'
+    alias = alias'
+
+class val MaxCall
+  let expr: (String val | Column val)
+  let result_type: DataType
+  let alias: (String val | None)
+
+  new val create(
+    expr': (String val | Column val),
+    result_type': DataType,
+    alias': (String val | None) = None)
+  =>
+    expr = expr'
+    result_type = result_type'
+    alias = alias'
+
+class val AvgCall
+  let expr: (String val | Column val)
+  let result_type: DataType
+  let alias: (String val | None)
+
+  new val create(
+    expr': (String val | Column val),
+    result_type': DataType,
+    alias': (String val | None) = None)
+  =>
+    expr = expr'
+    result_type = result_type'
+    alias = alias'
+
 class val TableOrSubquery
   let entity: (Table val | Select val)
 

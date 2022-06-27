@@ -653,7 +653,7 @@ primitive SqliteQueryResolver is QueryResolver
     let table: String val = corrector.correct(query.table.name())
     let assignments: String val = ", ".join(Iter[Assignment](query.assignments.values()).map[String val]({(x: Assignment): String val => SqliteAssignmentResolver(x, corrector)}))
     let where_filter: String val =
-      match query.where_filter_clause
+      match query.where_clause
       | let expr: BoolExpression =>
         " WHERE " + SqliteBoolExpressionResolver(expr, corrector)
       | None =>
@@ -668,7 +668,7 @@ primitive SqliteQueryResolver is QueryResolver
   : String val =>
     let table: String val = corrector.correct(query.table.name())
     let where_filter: String val =
-      match query.where_filter_clause
+      match query.where_clause
       | let expr: BoolExpression =>
         " WHERE " + SqliteBoolExpressionResolver(expr, corrector)
       | None =>

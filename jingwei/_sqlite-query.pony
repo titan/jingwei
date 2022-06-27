@@ -55,27 +55,27 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     let select4 = recover val Select(cols, false) .> from_table(table_foo) .> join(TableOrSubquery(table_bar), (On, GreaterThanExpression(id, I64(0)))) end
     h.assert_eq[String val](SqliteQueryResolver.select(select4, corrector), "SELECT id, int FROM foo JOIN bar ON id > 0")
 
-    let select5 = recover val Select(cols) .> from_table(table_foo) .> where_filter(GreaterThanExpression(id, I64(0))) end
+    let select5 = recover val Select(cols) .> from_table(table_foo) .> and_where(GreaterThanExpression(id, I64(0))) end
     h.assert_eq[String val](SqliteQueryResolver.select(select5, corrector), "SELECT id, int FROM foo WHERE id > 0")
 
     let select6 = recover val
       Select(cols) .>
       from_table(table_foo) .>
-      where_filter(AndExpression(GreaterThanExpression(id, I64(0)), GreaterThanExpression(int, I64(0))))
+      and_where(AndExpression(GreaterThanExpression(id, I64(0)), GreaterThanExpression(int, I64(0))))
     end
     h.assert_eq[String val](SqliteQueryResolver.select(select6, corrector), "SELECT id, int FROM foo WHERE (id > 0) AND (int > 0)")
 
     let select7 = recover val
       Select(cols) .>
       from_table(table_foo) .>
-      where_filter(OrExpression(GreaterThanExpression(id, I64(0)), GreaterThanExpression(int, I64(0))))
+      and_where(OrExpression(GreaterThanExpression(id, I64(0)), GreaterThanExpression(int, I64(0))))
     end
     h.assert_eq[String val](SqliteQueryResolver.select(select7, corrector), "SELECT id, int FROM foo WHERE (id > 0) OR (int > 0)")
 
     let select8 = recover val
       Select(cols) .>
       from_table(table_foo) .>
-      where_filter(GreaterThanExpression(id, I64(0))) .>
+      and_where(GreaterThanExpression(id, I64(0))) .>
       group_by([int])
     end
     h.assert_eq[String val](SqliteQueryResolver.select(select8, corrector), "SELECT id, int FROM foo WHERE id > 0 GROUP BY int")
@@ -83,7 +83,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     let select9 = recover val
       Select(cols) .>
       from_table(table_foo) .>
-      where_filter(GreaterThanExpression(id, I64(0))) .>
+      and_where(GreaterThanExpression(id, I64(0))) .>
       group_by([int]) .>
       having(GreaterThanExpression(ApplyExpression("count", [int], DataTypeInteger), I64(2)))
     end
@@ -92,7 +92,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     let select10 = recover val
       Select(cols) .>
       from_table(table_foo) .>
-      where_filter(GreaterThanExpression(id, I64(0))) .>
+      and_where(GreaterThanExpression(id, I64(0))) .>
       group_by([int]) .>
       having(GreaterThanExpression(ApplyExpression("count", [int], DataTypeInteger), I64(2))) .>
       order_by([int])
@@ -102,7 +102,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     let select11 = recover val
       Select(cols) .>
       from_table(table_foo) .>
-      where_filter(GreaterThanExpression(id, I64(0))) .>
+      and_where(GreaterThanExpression(id, I64(0))) .>
       group_by([int]) .>
       having(GreaterThanExpression(ApplyExpression("count", [int], DataTypeInteger), I64(2))) .>
       order_by([int]) .>
@@ -113,7 +113,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     let select12 = recover val
       Select(cols) .>
       from_table(table_foo) .>
-      where_filter(GreaterThanExpression(id, I64(0))) .>
+      and_where(GreaterThanExpression(id, I64(0))) .>
       group_by([int]) .>
       having(GreaterThanExpression(ApplyExpression("count", [int], DataTypeInteger), I64(2))) .>
       order_by([int]) .>
@@ -128,7 +128,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     let select13 = recover val
       Select(cols13) .>
       from_table(table_foo) .>
-      where_filter(GreaterThanExpression(id, I64(0)))
+      and_where(GreaterThanExpression(id, I64(0)))
     end
     h.assert_eq[String val](SqliteQueryResolver.select(select13, corrector), "SELECT COUNT(id) FROM foo WHERE id > 0")
 
@@ -138,7 +138,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     let select14 = recover val
       Select(cols14) .>
       from_table(table_foo) .>
-      where_filter(GreaterThanExpression(id, I64(0)))
+      and_where(GreaterThanExpression(id, I64(0)))
     end
     h.assert_eq[String val](SqliteQueryResolver.select(select14, corrector), "SELECT COUNT(id) AS 'abort' FROM foo WHERE id > 0")
 
@@ -148,7 +148,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     let select15 = recover val
       Select(cols15) .>
       from_table(table_foo) .>
-      where_filter(GreaterThanExpression(id, I64(0)))
+      and_where(GreaterThanExpression(id, I64(0)))
     end
     h.assert_eq[String val](SqliteQueryResolver.select(select15, corrector), "SELECT MIN(id) FROM foo WHERE id > 0")
 
@@ -158,7 +158,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     let select16 = recover val
       Select(cols16) .>
       from_table(table_foo) .>
-      where_filter(GreaterThanExpression(id, I64(0)))
+      and_where(GreaterThanExpression(id, I64(0)))
     end
     h.assert_eq[String val](SqliteQueryResolver.select(select16, corrector), "SELECT MIN(id) AS 'abort' FROM foo WHERE id > 0")
 
@@ -168,7 +168,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     let select17 = recover val
       Select(cols17) .>
       from_table(table_foo) .>
-      where_filter(GreaterThanExpression(id, I64(0)))
+      and_where(GreaterThanExpression(id, I64(0)))
     end
     h.assert_eq[String val](SqliteQueryResolver.select(select17, corrector), "SELECT MAX(id) FROM foo WHERE id > 0")
 
@@ -178,7 +178,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     let select18 = recover val
       Select(cols18) .>
       from_table(table_foo) .>
-      where_filter(GreaterThanExpression(id, I64(0)))
+      and_where(GreaterThanExpression(id, I64(0)))
     end
     h.assert_eq[String val](SqliteQueryResolver.select(select18, corrector), "SELECT MAX(id) AS 'abort' FROM foo WHERE id > 0")
 
@@ -188,7 +188,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     let select19 = recover val
       Select(cols19) .>
       from_table(table_foo) .>
-      where_filter(GreaterThanExpression(id, I64(0)))
+      and_where(GreaterThanExpression(id, I64(0)))
     end
     h.assert_eq[String val](SqliteQueryResolver.select(select19, corrector), "SELECT AVG(id) FROM foo WHERE id > 0")
 
@@ -198,14 +198,14 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     let select20 = recover val
       Select(cols20) .>
       from_table(table_foo) .>
-      where_filter(GreaterThanExpression(id, I64(0)))
+      and_where(GreaterThanExpression(id, I64(0)))
     end
     h.assert_eq[String val](SqliteQueryResolver.select(select20, corrector), "SELECT AVG(id) AS 'abort' FROM foo WHERE id > 0")
 
     let select21 = recover val
       Select(cols, true)
       .> from_table(table_foo)
-      .> where_filter(InExpression(id, [I64(0); I64(1)]))
+      .> and_where(InExpression(id, [I64(0); I64(1)]))
     end
     h.assert_eq[String val](SqliteQueryResolver.select(select21, corrector), "SELECT DISTINCT id, int FROM foo WHERE id IN (0, 1)")
 
@@ -258,7 +258,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     let update2 = recover val
       Update(table_foo) .>
       add_assignment(AssignmentBuilder(int, I64(1))) .>
-      where_filter(EqualsToExpression(id, I64(0)))
+      and_where(EqualsToExpression(id, I64(0)))
     end
     h.assert_eq[String val](SqliteQueryResolver.update(update2, corrector), "UPDATE foo SET int = 1 WHERE id = 0")
 
@@ -284,5 +284,5 @@ class \nodoc\ _TestSqliteQuery is UnitTest
 
     let delete1 = recover val Delete(table_foo) end
     h.assert_eq[String val](SqliteQueryResolver.delete(delete1, corrector), "DELETE FROM foo")
-    let delete2 = recover val Delete(table_foo) .> where_filter(EqualsToExpression(id, I64(0))) end
+    let delete2 = recover val Delete(table_foo) .> and_where(EqualsToExpression(id, I64(0))) end
     h.assert_eq[String val](SqliteQueryResolver.delete(delete2, corrector), "DELETE FROM foo WHERE id = 0")

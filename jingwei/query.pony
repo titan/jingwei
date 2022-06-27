@@ -223,10 +223,25 @@ class Select
       from_clause = (root, consume bodies')
     end
 
-  fun ref where_filter(
+  fun ref and_where(
     filter: BoolExpression)
   =>
-    where_clause = filter
+    match where_clause
+    | let clause: BoolExpression =>
+      where_clause = AndExpression(clause, filter)
+    else
+      where_clause = filter
+    end
+
+  fun ref or_where(
+    filter: BoolExpression)
+  =>
+    match where_clause
+    | let clause: BoolExpression =>
+      where_clause = OrExpression(clause, filter)
+    else
+      where_clause = filter
+    end
 
   fun ref group_by(
     group_by': Array[Column val] val)
@@ -294,7 +309,7 @@ class Insert
 class Update
   var table: Table val
   var assignments: Array[Assignment]
-  var where_filter_clause: (BoolExpression | None)
+  var where_clause: (BoolExpression | None)
 
   new create(
     table': Table val,
@@ -306,33 +321,63 @@ class Update
     for a in assignments'.values() do
       assignments.push(a)
     end
-    where_filter_clause = where_filter'
+    where_clause = where_filter'
 
   fun ref add_assignment(
     assignment: Assignment)
   =>
     assignments.push(assignment)
 
-  fun ref where_filter(
-    where_filter': BoolExpression)
+  fun ref and_where(
+    filter: BoolExpression)
   =>
-    where_filter_clause = where_filter'
+    match where_clause
+    | let clause: BoolExpression =>
+      where_clause = AndExpression(clause, filter)
+    else
+      where_clause = filter
+    end
+
+  fun ref or_where(
+    filter: BoolExpression)
+  =>
+    match where_clause
+    | let clause: BoolExpression =>
+      where_clause = OrExpression(clause, filter)
+    else
+      where_clause = filter
+    end
 
 class Delete
   var table: Table val
-  var where_filter_clause: (BoolExpression | None)
+  var where_clause: (BoolExpression | None)
 
   new create(
     table': Table val,
     where_filter': (BoolExpression | None) = None)
   =>
     table = table'
-    where_filter_clause = where_filter'
+    where_clause = where_filter'
 
-  fun ref where_filter(
-    where_filter': BoolExpression)
+  fun ref and_where(
+    filter: BoolExpression)
   =>
-    where_filter_clause = where_filter'
+    match where_clause
+    | let clause: BoolExpression =>
+      where_clause = AndExpression(clause, filter)
+    else
+      where_clause = filter
+    end
+
+  fun ref or_where(
+    filter: BoolExpression)
+  =>
+    match where_clause
+    | let clause: BoolExpression =>
+      where_clause = OrExpression(clause, filter)
+    else
+      where_clause = filter
+    end
 
 trait QueryResolver
 

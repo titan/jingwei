@@ -82,7 +82,7 @@ type DataSource is (TableOrSubquery val | Array[TableOrSubquery val] val | JoinC
 
 type AggregateColumn is (Expression | CountCall val | MinCall val | MaxCall val | AvgCall val)
 
-type ResultColumn is (Column val | AggregateColumn)
+type ResultColumn is (Column val | (Table val, Column val) | AggregateColumn)
 
 interface val _Order is Equatable[_Order]
 
@@ -107,8 +107,8 @@ class Select
   var where_clause: (BoolExpression | None) // where filter
   var group_by_clause: ((Array[Column val] val, (BoolExpression | None)) | None) // group-by
   var order_by_clause: ((Array[Column val] val, Order) | None) // order-by
-  var limit_clause: I64// limit
-  var offset_clause: I64// offset
+  var limit_clause: I64 // limit
+  var offset_clause: I64 // offset
 
   new create(
     result': Array[ResultColumn] val,

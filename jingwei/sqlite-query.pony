@@ -511,6 +511,8 @@ primitive SqliteResultColumnResolver
     match col
     | let col': Column val =>
       corrector.correct(col'.name)
+    | (let tab': Table val, let col': Column val) =>
+      corrector.correct(tab'.name()) + "." + corrector.correct(col'.name)
     | let call: CountCall val =>
       let arg: String val =
       match call.expr

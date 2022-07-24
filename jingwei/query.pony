@@ -106,7 +106,7 @@ class Select
   var from_clause: DataSource // from
   var where_clause: (BoolExpression | None) // where filter
   var group_by_clause: ((Array[Column val] val, (BoolExpression | None)) | None) // group-by
-  var order_by_clause: ((Array[Column val] val, Order) | None) // order-by
+  var order_by_clause: ((Array[Expression] val, Order) | None) // order-by
   var limit_clause: I64 // limit
   var offset_clause: I64 // offset
 
@@ -116,7 +116,7 @@ class Select
     from': DataSource = [],
     where_filter': (BoolExpression | None) = None,
     group_by': ((Array[Column val] val, (BoolExpression | None)) | None) = None,
-    order_by': ((Array[Column val] val, Order) | None) = None,
+    order_by': ((Array[Expression] val, Order) | None) = None,
     limit': I64 = I64(0),
     offset': I64 = I64(0))
   =>
@@ -182,23 +182,41 @@ class Select
       from_clause = [TableOrSubquery(subquery)]
     end
 
-  fun ref join(
-    table_or_subquery: TableOrSubquery val,
+  fun ref join_table(
+    table: Table val,
     contraint: (JoinContraint | None) = None)
   =>
-    _join(Join, table_or_subquery, contraint)
+    _join(Join, TableOrSubquery(table), contraint)
 
-  fun ref left_join(
-    table_or_subquery: TableOrSubquery val,
+  fun ref left_join_table(
+    table: Table val,
     contraint: (JoinContraint | None) = None)
   =>
-    _join(LeftJoin, table_or_subquery, contraint)
+    _join(LeftJoin, TableOrSubquery(table), contraint)
 
-  fun ref left_outer_join(
-    table_or_subquery: TableOrSubquery val,
+  fun ref left_outer_join_table(
+    table: Table val,
     contraint: (JoinContraint | None) = None)
   =>
-    _join(LeftOuterJoin, table_or_subquery, contraint)
+    _join(LeftOuterJoin, TableOrSubquery(table), contraint)
+
+  fun ref join_subquery(
+    subquery: Select val,
+    contraint: (JoinContraint | None) = None)
+  =>
+    _join(Join, TableOrSubquery(subquery), contraint)
+
+  fun ref left_join_subquery(
+    subquery: Select val,
+    contraint: (JoinContraint | None) = None)
+  =>
+    _join(LeftJoin, TableOrSubquery(subquery), contraint)
+
+  fun ref left_outer_join_subquery(
+    subquery: Select val,
+    contraint: (JoinContraint | None) = None)
+  =>
+    _join(LeftOuterJoin, TableOrSubquery(subquery), contraint)
 
   fun ref _join(
     operator: JoinOperator,
@@ -262,10 +280,10 @@ class Select
     end
 
   fun ref order_by(
-    columns: Array[Column val] val,
+    exprs: Array[Expression] val,
     order: Order = Asc)
   =>
-    order_by_clause = (columns, order)
+    order_by_clause = (exprs, order)
 
   fun ref limit(
     limit': USize)

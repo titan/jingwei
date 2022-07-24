@@ -52,7 +52,7 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     h.assert_eq[String val](SqliteQueryResolver.select(select3, corrector), "SELECT id, int FROM (SELECT DISTINCT id, int FROM foo)")
 
     let join: JoinClause val = (TableOrSubquery(table_foo), [(Join, TableOrSubquery(table_bar), (On, GreaterThanExpression(id, I64(0))))])
-    let select4 = recover val Select(cols, false) .> from_table(table_foo) .> join(TableOrSubquery(table_bar), (On, GreaterThanExpression(id, I64(0)))) end
+    let select4 = recover val Select(cols, false) .> from_table(table_foo) .> join_table(table_bar, (On, GreaterThanExpression(id, I64(0)))) end
     h.assert_eq[String val](SqliteQueryResolver.select(select4, corrector), "SELECT id, int FROM foo JOIN bar ON id > 0")
 
     let select5 = recover val Select(cols) .> from_table(table_foo) .> and_where(GreaterThanExpression(id, I64(0))) end

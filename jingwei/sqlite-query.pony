@@ -619,11 +619,11 @@ primitive SqliteQueryResolver is QueryResolver
       end
     let order_by: String val =
       match query.order_by_clause
-      | (let cols: Array[Column val] val, let order: Order) =>
-        let cols': String val = ", ".join(Iter[Column val](cols.values()).map[String val]({(x: Column val): String val => corrector.correct(x.name)}))
+      | (let terms: Array[Expression] val, let order: Order) =>
+        let terms': String val = ", ".join(Iter[Expression](terms.values()).map[String val]({(x: Expression): String val => SqliteExpressionResolver(x, corrector)}))
         let order': String val = if order == Asc then "" else " DESC" end
-        let result: String iso = recover iso String(" ORDER BY ".size() + cols'.size() + order'.size()) end
-        (consume result) .> append(" ORDER BY ") .> append(cols') .> append(order')
+        let result: String iso = recover iso String(" ORDER BY ".size() + terms'.size() + order'.size()) end
+        (consume result) .> append(" ORDER BY ") .> append(terms') .> append(order')
       | None =>
         ""
       end

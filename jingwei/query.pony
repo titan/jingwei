@@ -298,18 +298,24 @@ class Select
 class Insert
   var table: Table val
   var columns: Array[Column val] val
-  var values: Array[Array[Expression] val]
+  var values: (Array[Array[Expression] val] | Select val)
 
   new create(
     table': Table val,
     columns': Array[Column val] val = [],
-    values': Array[Array[Expression] val] val = [])
+    values': (Array[Array[Expression] val] val | Select val) = [])
   =>
     table = table'
     columns = columns'
-    values = []
-    for v in values'.values() do
-      values.push(v)
+    match values'
+    | let values'': Array[Array[Expression] val] val =>
+      let values''' = Array[Array[Expression] val](values''.size())
+      for v in values''.values() do
+        values'''.push(v)
+      end
+      values = values'''
+    | let select': Select val =>
+      values = select'
     end
 
   fun ref into(
@@ -322,7 +328,19 @@ class Insert
   fun ref add_value(
     value: Array[Expression] val)
   =>
-    values.push(value)
+    match values
+    | let values': Array[Array[Expression] val] =>
+      values'.push(value)
+    else
+      let values': Array[Array[Expression] val] = Array[Array[Expression] val](1)
+      values'.push(value)
+      values = values'
+    end
+
+  fun ref select(
+    select': Select val)
+  =>
+    values = select'
 
 class Update
   var table: Table val

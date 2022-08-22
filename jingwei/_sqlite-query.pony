@@ -233,6 +233,10 @@ class \nodoc\ _TestSqliteQuery is UnitTest
     let insert2 = recover val Insert(table_foo, [int]) .> add_value([Placeholder]) .> add_value([Placeholder]) end
     h.assert_eq[String val](SqliteQueryResolver.insert(insert2, corrector), "INSERT INTO foo(int) VALUES (?), (?)")
 
+    let select1 = recover val Select([int]) .> from_table(table_foo) end
+    let insert3 = recover val Insert(table_foo, [int]) .> select(select1) end
+    h.assert_eq[String val](SqliteQueryResolver.insert(insert3, corrector), "INSERT INTO foo(int) SELECT int FROM foo")
+
   fun _update(
     h: TestHelper,
     corrector: IdentifierCorrector val)

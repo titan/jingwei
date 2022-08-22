@@ -638,15 +638,21 @@ primitive SqliteQueryResolver is QueryResolver
   : String val =>
     let table: String val = corrector.correct(query.table.name())
     let columns: String val = ", ".join(Iter[Column val](query.columns.values()).map[String val]({(x: Column val): String val => corrector.correct(x.name)}))
-    let values: String val = ", ".join(Iter[Array[Expression] val](query.values.values()).map[String val]({(x: Array[Expression] val)(corrector): String val =>
-      let vals: String val = ", ".join(Iter[Expression](x.values()).map[String val]({(y: Expression): String val =>
-        SqliteExpressionResolver(y, corrector)
+    var values: String val = ""
+    match query.values
+    | let values': Array[Array[Expression] val] val =>
+      values = "VALUES " + ", ".join(Iter[Array[Expression] val](values'.values()).map[String val]({(x: Array[Expression] val)(corrector): String val =>
+        let vals: String val = ", ".join(Iter[Expression](x.values()).map[String val]({(y: Expression): String val =>
+          SqliteExpressionResolver(y, corrector)
+        }))
+        let result: String iso = recover iso String("()".size() + vals.size()) end
+        (consume result) .> append("(") .> append(vals) .> append(")")
       }))
-      let result: String iso = recover iso String("()".size() + vals.size()) end
-      (consume result) .> append("(") .> append(vals) .> append(")")
-    }))
-    let result: String iso = recover iso String("INSERT INTO () VALUES ".size() + table.size() + columns.size() + values.size()) end
-    (consume result) .> append("INSERT INTO ") .> append(table) .> append("(") .> append(columns) .> append(") VALUES ") .> append(values)
+    | let select': Select val =>
+      values = select(select', corrector)
+    end
+    let result: String iso = recover iso String("INSERT INTO () ".size() + table.size() + columns.size() + values.size()) end
+    (consume result) .> append("INSERT INTO ") .> append(table) .> append("(") .> append(columns) .> append(") ") .> append(values)
 
   fun val update(
     query: Update val,

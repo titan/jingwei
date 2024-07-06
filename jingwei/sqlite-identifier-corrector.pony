@@ -166,7 +166,7 @@ class val SqliteIdentifierCorrector is IdentifierCorrector
     let upper_identifier: String val = identifier.upper()
     if _keywords.contains(upper_identifier) then
       let identifier': String iso = recover iso String(identifier.size() + 2) end
-      (consume identifier') .> append("'") .> append(identifier) .> append("'")
+      (consume identifier') .> append("`") .> append(identifier) .> append("`")
     else
       identifier
     end
